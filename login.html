@@ -67,7 +67,7 @@
     <div class="login-container">
         <img src="src/logo.jpg" alt="Logo Empresa" class="company-logo" />
 
-        <form>
+        <form id="loginForm">
         <!-- Campo usuario -->
         <div class="mb-3 input-group">
             <span class="input-group-text">
@@ -106,6 +106,15 @@
         passwordInput.type = isPassword ? 'text' : 'password';
         toggleIcon.classList.toggle('bi-eye');
         toggleIcon.classList.toggle('bi-eye-slash');
+        });
+    </script>
+
+    <script>
+        const loginForm = document.getElementById('loginForm');
+
+        loginForm.addEventListener('submit', function (e) {
+        e.preventDefault(); // evita que recargue la página
+        window.location.href = 'index.html'; // redirige a
         });
     </script>
 
