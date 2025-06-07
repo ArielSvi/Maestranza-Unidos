@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Panel de Inventario</title>
+
+  <!-- Bootstrap & ApexCharts -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Estilos personalizados -->
+  <style>
+    body {
+      background-color: #e0f7ff;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      overflow-x: hidden;
+    }
+
+    .topbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background-color: #00bfff;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 0 20px;
+      color: white;
+      font-weight: bold;
+      z-index: 1200;
+    }
+
+    .topbar img {
+      height: 50px;
+      margin-left: 10px;
+    }
+
+    .sidebar {
+      width: 220px;
+      height: calc(100vh - 60px);
+      background-color: #c9f2fc;
+      position: fixed;
+      top: 60px;
+      left: 0;
+      padding-top: 10px;
+      transition: all 0.3s ease;
+      z-index: 1000;
+      overflow-y: auto;
+    }
+
+    .sidebar.collapsed {
+      width: 60px;
+    }
+
+    .sidebar a {
+      display: flex;
+      align-items: center;
+      padding: 12px 20px;
+      color: #000;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background-color 0.3s ease;
+    }
+
+    .sidebar a:hover {
+      background-color: #bdefff;
+      border-radius: 0 20px 20px 0;
+    }
+
+    .sidebar img {
+      width: 20px;
+      height: 20px;
+      margin-right: 12px;
+      flex-shrink: 0;
+    }
+
+    .sidebar .label {
+      transition: opacity 0.2s ease;
+    }
+
+    .sidebar.collapsed a {
+      justify-content: center;
+    }
+
+    .sidebar.collapsed .label {
+      display: none;
+    }
+
+    .hamburger-btn {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      font-size: 26px;
+      background: none;
+      border: none;
+      z-index: 1300;
+      color: #000;
+    }
+
+    .main-content {
+      margin-left: 220px;
+      margin-top: 60px;
+      padding: 30px 20px;
+      transition: margin-left 0.3s ease;
+    }
+
+    .sidebar.collapsed + .main-content {
+      margin-left: 60px;
+    }
+
+    .stock-critical {
+      background-color: red !important;
+    }
+
+    .stock-low {
+      background-color: yellow !important;
+    }
+
+    .scrollable {
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .card {
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Barra superior -->
+  <div class="topbar">
+    <img src="src/logo.jpg" alt="Logo" />
+  </div>
+
+  <!-- Botón hamburguesa -->
+  <button class="hamburger-btn" onclick="toggleSidebar()">☰</button>
+
+  <!-- Sidebar -->
+  <div id="sidebar" class="sidebar collapsed">
+    <a href="index.html"><img src="https://img.icons8.com/ios-filled/24/000000/web.png" /><span class="label">Dashboard</span></a>
+    <a href="inventario.html"><img src="https://img.icons8.com/ios-filled/24/000000/box.png" /><span class="label">Inventario</span></a>
+    <a href="movimientos.html"><img src="https://img.icons8.com/ios-filled/24/000000/refresh.png" /><span class="label">Movimientos</span></a>
+    <a href="reportes.html"><img src="https://img.icons8.com/ios-filled/24/000000/document.png" /><span class="label">Reportes</span></a>
+    <a href="kits.html"><img src="https://img.icons8.com/ios-filled/24/000000/package.png" /><span class="label">Kits / Conjuntos</span></a>
+    <a href="historial.html"><img src="https://img.icons8.com/ios-filled/24/000000/time-machine.png" /><span class="label">Historial</span></a>
+    <a href="configuracion.html"><img src="https://img.icons8.com/ios-filled/24/000000/settings.png" /><span class="label">Configuración</span></a>
+    <a href="logout.html"><img src="https://img.icons8.com/ios-filled/24/000000/logout-rounded-left.png" /><span class="label">Cerrar sesión</span></a>
+  </div>
+
+  <!-- Contenido principal -->
+<div class="container">
+  <h2 class="mb-4">Panel de Reportes</h2>
+
+  <!-- Resumen numérico -->
+  <div class="row mb-4">
+    <div class="col-md-4">
+      <div class="card p-3 text-center">
+        <h5>Total de Productos</h5>
+        <p class="fs-4 fw-bold">158</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card p-3 text-center">
+        <h5>Stock Crítico</h5>
+        <p class="fs-4 fw-bold text-danger">7 ítems</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card p-3 text-center">
+        <h5>Últimos Movimientos</h5>
+        <p class="fs-4 fw-bold">34 esta semana</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla de stock bajo -->
+  <div class="card p-3 mb-4">
+    <h5 class="mb-3">Productos con Stock Bajo</h5>
+    <div class="table-responsive scrollable">
+      <table class="table table-bordered table-striped">
+        <thead class="table-light">
+          <tr>
+            <th>ID</th>
+            <th>Producto</th>
+            <th>Stock Actual</th>
+            <th>Mínimo Requerido</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="stock-critical">
+            <td>101</td>
+            <td>Lubricante A</td>
+            <td>3</td>
+            <td>10</td>
+            <td><span class="badge bg-danger">Crítico</span></td>
+          </tr>
+          <tr class="stock-low">
+            <td>145</td>
+            <td>Tornillo M6</td>
+            <td>8</td>
+            <td>15</td>
+            <td><span class="badge bg-warning text-dark">Bajo</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Área para gráficos -->
+  <div class="card p-3 mb-4">
+    <h5 class="mb-3">Consumo por Producto (Ejemplo)</h5>
+    <div id="graficoConsumo"></div>
+  </div>
+</div>
+
+<!-- Gráfico usando ApexCharts -->
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+  var options = {
+    chart: {
+      type: 'bar',
+      height: 250
+    },
+    series: [{
+      name: 'Unidades consumidas',
+      data: [30, 45, 25, 10, 55]
+    }],
+    xaxis: {
+      categories: ['Lubricante A', 'Filtro B', 'Tornillo M6', 'Engranaje C', 'Valvula D']
+    },
+    colors: ['#00bfff']
+  };
+
+  var chart = new ApexCharts(document.querySelector("#graficoConsumo"), options);
+  chart.render();
+</script>
+
+
+
+  <!-- JS: Fecha actual -->
+  <script>
+    document.getElementById('fecha').textContent = new Date().toLocaleDateString('es-CL', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
+  </script>
+
+  <!-- JS: Sidebar toggle -->
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById("sidebar");
+      sidebar.classList.toggle("collapsed");
+      const main = document.querySelector(".main-content");
+      main.style.marginLeft = sidebar.classList.contains("collapsed") ? "60px" : "220px";
+    }
+  </script>
+
+</body>
+</html>
