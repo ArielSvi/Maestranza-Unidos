@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Usuarios - Maestranza Unidos</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet"/>
+
+  <style>
+    body {
+      margin: 0;
+      background-color: #eaf6ff;
+      font-family: 'Segoe UI', sans-serif;
+      overflow-x: hidden;
+    }
+
+    .topbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background-color: #00bfff;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 0 20px;
+      color: white;
+      font-weight: bold;
+      z-index: 1200;
+    }
+
+    .topbar img {
+      height: 50px;
+      margin-left: 10px;
+    }
+
+    .hamburger-btn {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      font-size: 26px;
+      background: none;
+      border: none;
+      z-index: 1300;
+      color: #000;
+    }
+
+    .sidebar {
+      width: 220px;
+      height: calc(100vh - 60px);
+      background-color: #c9f2fc;
+      position: fixed;
+      top: 60px;
+      left: 0;
+      padding-top: 10px;
+      transition: all 0.3s ease;
+      z-index: 1000;
+      overflow-y: auto;
+    }
+
+    .sidebar.collapsed {
+      width: 60px;
+    }
+
+    .sidebar a {
+      display: flex;
+      align-items: center;
+      padding: 12px 20px;
+      color: #000;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background-color 0.3s ease;
+    }
+
+    .sidebar a:hover {
+      background-color: #bdefff;
+      border-radius: 0 20px 20px 0;
+    }
+
+    .sidebar img {
+      width: 20px;
+      height: 20px;
+      margin-right: 12px;
+      flex-shrink: 0;
+    }
+
+    .sidebar .label {
+      transition: opacity 0.2s ease;
+    }
+
+    .sidebar.collapsed a {
+      justify-content: center;
+    }
+
+    .sidebar.collapsed .label {
+      display: none;
+    }
+
+    .main-content {
+      margin-top: 80px;
+      margin-left: 240px;
+      padding: 20px;
+    }
+
+    .sidebar.collapsed ~ .main-content {
+      margin-left: 80px;
+    }
+
+    .table-container {
+      margin-top: 90px;
+      margin-left: 240px;
+      padding: 20px;
+    }
+
+    .table {
+      border-collapse: collapse;
+      width: 100%;
+      background-color: #ffffff;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .table thead {
+      background-color: #00bfff;
+      color: white;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .table tbody tr:nth-child(even) {
+      background-color: #f0faff;
+    }
+
+    .table th,
+    .table td {
+      padding: 12px;
+      text-align: center;
+      border-bottom: 1px solid #dee2e6;
+    }
+
+    .btn-editar {
+      background-color: #0d6efd;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .btn-eliminar {
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .btn-editar:hover {
+      background-color: #0b5ed7;
+    }
+
+    .btn-eliminar:hover {
+      background-color: #bb2d3b;
+    }
+
+    .card-header {
+      background-color: #007bff !important;
+      color: white;
+      font-weight: bold;
+      font-size: 1.2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+    }
+
+    #btnAgregarUsuario {
+      background-color: rgb(40, 144, 241);
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+    }
+
+    #btnAgregarUsuario:hover {
+      background-color: #0056b3;
+    }
+
+    .modal-dialog {
+        margin-top: 80px !important;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <img src="src/logo.jpg" alt="Logo" />
+  </div>
+
+  <button class="hamburger-btn" onclick="toggleSidebar()">☰</button>
+
+  <div id="sidebar" class="sidebar collapsed">
+    <a href="index.html"><img src="https://img.icons8.com/ios-filled/24/000000/web.png" /><span class="label">Dashboard</span></a>
+    <a href="inventario.html"><img src="https://img.icons8.com/ios-filled/24/000000/box.png" /><span class="label">Inventario</span></a>
+    <a href="movimientos.html"><img src="https://img.icons8.com/ios-filled/24/000000/refresh.png" /><span class="label">Movimientos</span></a>
+    <a href="reportes.html"><img src="https://img.icons8.com/ios-filled/24/000000/document.png" /><span class="label">Reportes</span></a>
+    <a href="kits.html"><img src="https://img.icons8.com/ios-filled/24/000000/package.png" /><span class="label">Kits / Conjuntos</span></a>
+    <a href="historial.html"><img src="https://img.icons8.com/ios-filled/24/000000/time-machine.png" /><span class="label">Historial</span></a>
+    <a href="configuracion.html"><img src="https://img.icons8.com/ios-filled/24/000000/settings.png" /><span class="label">Configuración</span></a>
+    <a href="compras.html"><img src="https://img.icons8.com/ios-filled/24/000000/shop.png" /><span class="label">Compras</span></a>
+    <a href="login.html"><img src="https://img.icons8.com/ios-filled/24/000000/logout-rounded-left.png" /><span class="label">Cerrar sesión</span></a>
+  </div>
+
+  <div class="main-content">
+    <div class="card">
+      <div class="card-header">
+        <span>Gestión de Usuarios</span>
+        <button id="btnAgregarUsuario">+ Agregar Usuario</button>
+      </div>
+      <div class="card-body">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre Completo</th>
+              <th>Usuario</th>
+              <th>Correo</th>
+              <th>Rol</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaUsuarios"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="modalUsuario" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="formUsuario">
+          <div class="modal-header">
+            <h5 class="modal-title">Usuario</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="usuarioId" />
+            <input type="text" class="form-control mb-2" placeholder="Nombre" id="nombre" required />
+            <input type="text" class="form-control mb-2" placeholder="Apellido Paterno" id="apellidoPaterno" required />
+            <input type="text" class="form-control mb-2" placeholder="Apellido Materno" id="apellidoMaterno" required />
+            <input type="email" class="form-control mb-2" placeholder="Correo" id="correo" required />
+            <select class="form-control mb-2" id="rol" required>
+                <option value="">Seleccione un rol</option>
+                <option value="administrador">Administrador</option>
+                <option value="bodeguero">Bodeguero</option>
+                <option value="comprador">Comprador</option>
+            </select>
+            <input type="password" class="form-control mb-2" placeholder="Contraseña" id="contrasena" required />
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-success">Guardar</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById("sidebar");
+      sidebar.classList.toggle("collapsed");
+    }
+  </script>
+
+    <!-- Storage y lógica de usuarios -->
+    <script src="storageService.js"></script>
+    <script src="usuarios.js"></script>
+
+</body>
+</html>
