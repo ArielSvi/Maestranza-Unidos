@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Crear Usuario - Maestranza Unidos</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="sidebar.css" />
+
+  <style>
+    body {
+      margin: 0;
+      background-color: #f0f8ff;
+      font-family: 'Segoe UI', sans-serif;
+      overflow-x: hidden;
+    }
+
+    .topbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background-color: #00bfff;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 0 20px;
+      color: white;
+      font-weight: bold;
+      z-index: 1200;
+    }
+
+    .topbar img {
+      height: 50px;
+      margin-left: 10px;
+    }
+
+    .hamburger-btn {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      font-size: 26px;
+      background: none;
+      border: none;
+      z-index: 1300;
+      color: #000;
+    }
+
+    .sidebar {
+      width: 220px;
+      height: calc(100vh - 60px);
+      background-color: #c9f2fc;
+      position: fixed;
+      top: 60px;
+      left: 0;
+      padding-top: 10px;
+      transition: all 0.3s ease;
+      z-index: 1000;
+      overflow-y: auto;
+    }
+
+    .sidebar.collapsed {
+      width: 60px;
+    }
+
+    .sidebar a {
+      display: flex;
+      align-items: center;
+      padding: 12px 20px;
+      color: #000;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background-color 0.3s ease;
+    }
+
+    .sidebar a:hover {
+      background-color: #bdefff;
+      border-radius: 0 20px 20px 0;
+    }
+
+    .sidebar img {
+      width: 20px;
+      height: 20px;
+      margin-right: 12px;
+      flex-shrink: 0;
+    }
+
+    .sidebar .label {
+      transition: opacity 0.2s ease;
+    }
+
+    .sidebar.collapsed a {
+      justify-content: center;
+    }
+
+    .sidebar.collapsed .label {
+      display: none;
+    }
+
+    .main-content {
+      margin-left: 220px;
+      margin-top: 80px;
+      padding: 20px;
+      transition: margin-left 0.3s ease;
+    }
+
+    .main-content.collapsed {
+      margin-left: 60px;
+    }
+
+    .card {
+      max-width: 600px;
+      margin: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Barra superior -->
+  <div class="topbar">
+    <img src="src/logo.jpg" alt="Logo" />
+  </div>
+
+  <!-- Botón hamburguesa -->
+  <button class="hamburger-btn" onclick="toggleSidebar()">☰</button>
+
+  <!-- Sidebar estático -->
+  <div id="sidebar" class="sidebar collapsed">
+    <a href="index.html"><img src="https://img.icons8.com/ios-filled/24/000000/web.png" /><span class="label">Dashboard</span></a>
+    <a href="inventario.html"><img src="https://img.icons8.com/ios-filled/24/000000/box.png" /><span class="label">Inventario</span></a>
+    <a href="movimientos.html"><img src="https://img.icons8.com/ios-filled/24/000000/refresh.png" /><span class="label">Movimientos</span></a>
+    <a href="reportes.html"><img src="https://img.icons8.com/ios-filled/24/000000/document.png" /><span class="label">Reportes</span></a>
+    <a href="kits.html"><img src="https://img.icons8.com/ios-filled/24/000000/package.png" /><span class="label">Kits / Conjuntos</span></a>
+    <a href="historial.html"><img src="https://img.icons8.com/ios-filled/24/000000/time-machine.png" /><span class="label">Historial</span></a>
+    <a href="configuracion.html"><img src="https://img.icons8.com/ios-filled/24/000000/settings.png" /><span class="label">Configuración</span></a>
+    <a href="compras.html"><img src="https://img.icons8.com/ios-filled/24/000000/shop.png" /><span class="label">Compras</span></a>
+    <a href="login.html"><img src="https://img.icons8.com/ios-filled/24/000000/logout-rounded-left.png" /><span class="label">Cerrar sesión</span></a>
+  </div>
+
+  <!-- Contenido principal -->
+  <div class="main-content">
+    <div class="card shadow p-4">
+      <h2 class="mb-4 text-center">Crear Usuario</h2>
+      <form id="formCrearUsuario">
+        <div class="mb-3">
+          <label class="form-label">Nombre</label>
+          <input type="text" id="nombre" class="form-control" required />
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Apellido Paterno</label>
+          <input type="text" id="apellidoPaterno" class="form-control" required />
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Apellido Materno</label>
+          <input type="text" id="apellidoMaterno" class="form-control" required />
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Usuario</label>
+          <input type="text" id="usuario" class="form-control" readonly />
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Correo electrónico</label>
+          <input type="email" id="correo" class="form-control" required />
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Rol</label>
+          <select id="rol" class="form-select" required>
+            <option value="">Seleccione un rol</option>
+            <option value="administrador">Administrador</option>
+            <option value="bodeguero">Bodeguero</option>
+            <option value="comprador">Comprador</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Contraseña</label>
+          <input type="password" id="contrasena" class="form-control" required />
+        </div>
+        <div class="d-grid">
+          <button type="submit" class="btn btn-primary">Guardar Usuario</button>
+        </div>
+      </form>
+      <div id="mensaje" class="mt-3 text-success text-center" style="display:none;">
+        Usuario guardado exitosamente.
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="storageService.js"></script>
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById("sidebar");
+      sidebar.classList.toggle("collapsed");
+      const main = document.querySelector(".main-content");
+      main.classList.toggle("collapsed");
+    }
+
+    function generarUsuario(nombre, apPaterno, apMaterno, usuarios) {
+      let base = `${nombre[0].toLowerCase()}${apPaterno.toLowerCase()}`;
+      let candidato = base;
+      let contador = 1;
+      while (usuarios.some(u => u.usuario === candidato)) {
+        candidato = base + apMaterno[0].toLowerCase().repeat(contador);
+        contador++;
+      }
+      return candidato;
+    }
+
+    document.getElementById("nombre").addEventListener("input", actualizarUsuario);
+    document.getElementById("apellidoPaterno").addEventListener("input", actualizarUsuario);
+    document.getElementById("apellidoMaterno").addEventListener("input", actualizarUsuario);
+
+    function actualizarUsuario() {
+      const nombre = document.getElementById("nombre").value.trim();
+      const apPaterno = document.getElementById("apellidoPaterno").value.trim();
+      const apMaterno = document.getElementById("apellidoMaterno").value.trim();
+      if (nombre && apPaterno && apMaterno) {
+        const usuarios = obtenerUsuarios();
+        document.getElementById("usuario").value = generarUsuario(nombre, apPaterno, apMaterno, usuarios);
+      }
+    }
+
+    const form = document.getElementById('formCrearUsuario');
+    const mensaje = document.getElementById('mensaje');
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const nuevoUsuario = {
+        nombre: document.getElementById('nombre').value.trim(),
+        apellidoPaterno: document.getElementById('apellidoPaterno').value.trim(),
+        apellidoMaterno: document.getElementById('apellidoMaterno').value.trim(),
+        usuario: document.getElementById('usuario').value.trim(),
+        correo: document.getElementById('correo').value.trim(),
+        rol: document.getElementById('rol').value,
+        contrasena: document.getElementById('contrasena').value
+      };
+
+      const usuarios = obtenerUsuarios();
+      const existeCorreo = usuarios.some(u => u.correo === nuevoUsuario.correo);
+
+      if (existeCorreo) {
+        alert("Este correo ya está registrado.");
+        return;
+      }
+
+      //asdsadsad
+      agregarUsuario(nuevoUsuario);
+      form.reset();
+      document.getElementById("usuario").value = "";
+      mensaje.style.display = "block";
+      setTimeout(() => mensaje.style.display = "none", 3000);
+    });
+  </script>
+</body>
+</html>
