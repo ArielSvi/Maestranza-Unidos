@@ -3,20 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Navegación - Maestranza Unidos</title>
+  <title>Historial - Maestranza Unidos</title>
 
-  <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- Estilos -->
   <style>
     body {
-      margin: 0;
-      background-color: #f0f8ff;
+      background-color: #e0f7ff;
       font-family: 'Segoe UI', sans-serif;
+      margin: 0;
       overflow-x: hidden;
     }
-
     .topbar {
       position: fixed;
       top: 0;
@@ -32,23 +30,7 @@
       font-weight: bold;
       z-index: 1200;
     }
-
-    .topbar img {
-      height: 50px;
-      margin-left: 10px;
-    }
-
-    .hamburger-btn {
-      position: fixed;
-      top: 15px;
-      left: 15px;
-      font-size: 26px;
-      background: none;
-      border: none;
-      z-index: 1300;
-      color: #000;
-    }
-
+    .topbar img { height: 50px; margin-left: 10px; }
     .sidebar {
       width: 220px;
       height: calc(100vh - 60px);
@@ -61,11 +43,7 @@
       z-index: 1000;
       overflow-y: auto;
     }
-
-    .sidebar.collapsed {
-      width: 60px;
-    }
-
+    .sidebar.collapsed { width: 60px; }
     .sidebar a {
       display: flex;
       align-items: center;
@@ -73,72 +51,137 @@
       color: #000;
       text-decoration: none;
       font-weight: 500;
-      transition: background-color 0.3s ease;
     }
-
     .sidebar a:hover {
       background-color: #bdefff;
       border-radius: 0 20px 20px 0;
     }
-
-    .sidebar img {
-      width: 20px;
-      height: 20px;
-      margin-right: 12px;
-      flex-shrink: 0;
+    .sidebar img { width: 20px; height: 20px; margin-right: 12px; flex-shrink: 0; }
+    .sidebar.collapsed a { justify-content: center; }
+    .sidebar.collapsed .label { display: none; }
+    .hamburger-btn {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      font-size: 26px;
+      background: none;
+      border: none;
+      z-index: 1300;
+      color: #000;
     }
-
-    .sidebar .label {
-      transition: opacity 0.2s ease;
+    .main-content {
+      margin-left: 220px;
+      margin-top: 60px;
+      padding: 30px 20px;
+      transition: margin-left 0.3s ease;
     }
-
-    .sidebar.collapsed a {
-      justify-content: center;
+    .sidebar.collapsed + .main-content {
+      margin-left: 60px;
     }
-
-    .sidebar.collapsed .label {
-      display: none;
+    .card {
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .scrollable {
+      max-height: 350px;
+      overflow-y: auto;
     }
   </style>
 </head>
 <body>
 
-  <!-- Barra superior -->
   <div class="topbar">
     <img src="src/logo.jpg" alt="Logo" />
   </div>
 
-  <!-- Botón hamburguesa -->
   <button class="hamburger-btn" onclick="toggleSidebar()">☰</button>
 
   <div id="sidebar" class="sidebar collapsed">
-    <a href="index.html"><img src="https://img.icons8.com/ios-filled/24/000000/web.png" /><span class="label">Dashboard</span></a>
-    <a href="inventario.html"><img src="https://img.icons8.com/ios-filled/24/000000/box.png" /><span class="label">Inventario</span></a>
-    <a href="movimientos.html"><img src="https://img.icons8.com/ios-filled/24/000000/refresh.png" /><span class="label">Movimientos</span></a>
-    <a href="reportes.html"><img src="https://img.icons8.com/ios-filled/24/000000/document.png" /><span class="label">Reportes</span></a>
-    <a href="kits.html"><img src="https://img.icons8.com/ios-filled/24/000000/package.png" /><span class="label">Kits / Conjuntos</span></a>
-    <a href="historial.html"><img src="https://img.icons8.com/ios-filled/24/000000/time-machine.png" /><span class="label">Historial</span></a>
-    <a href="configuracion.html"><img src="https://img.icons8.com/ios-filled/24/000000/settings.png" /><span class="label">Configuración</span></a>
-    <a href="compras.html"><img src="https://img.icons8.com/ios-filled/24/000000/shop.png" /><span class="label">Compras</span></a>
-    <a href="login.html"><img src="https://img.icons8.com/ios-filled/24/000000/logout-rounded-left.png" /><span class="label">Cerrar sesión</span></a>
+    <a href="index.html"><img src="https://img.icons8.com/ios-filled/24/000000/web.png"/><span class="label">Dashboard</span></a>
+    <a href="inventario.html"><img src="https://img.icons8.com/ios-filled/24/000000/box.png"/><span class="label">Inventario</span></a>
+    <a href="movimientos.html"><img src="https://img.icons8.com/ios-filled/24/000000/refresh.png"/><span class="label">Movimientos</span></a>
+    <a href="reportes.html"><img src="https://img.icons8.com/ios-filled/24/000000/document.png"/><span class="label">Reportes</span></a>
+    <a href="kits.html"><img src="https://img.icons8.com/ios-filled/24/000000/package.png"/><span class="label">Kits</span></a>
+    <a href="historial.html"><img src="https://img.icons8.com/ios-filled/24/000000/time-machine.png"/><span class="label">Historial</span></a>
+    <a href="configuracion.html"><img src="https://img.icons8.com/ios-filled/24/000000/settings.png"/><span class="label">Configuración</span></a>
+    <a href="compras.html"><img src="https://img.icons8.com/ios-filled/24/000000/shop.png"/><span class="label">Compras</span></a>
+    <a href="login.html"><img src="https://img.icons8.com/ios-filled/24/000000/logout-rounded-left.png"/><span class="label">Cerrar sesión</span></a>
   </div>
 
-    <div class="main-content">
-        <div>
-            <h1>
-                HISTORIAL
-            </h1>
-        </div>
+  <div class="main-content">
+    <div class="d-flex justify-content-between flex-wrap mb-4">
+      <div class="bg-light p-3 rounded text-center flex-fill me-2">
+        <strong>HISTORIAL DE MOVIMIENTOS</strong>
+      </div>
+      <div class="bg-light p-3 rounded text-center flex-fill ms-2">
+        <button class="btn btn-danger" onclick="limpiarHistorial()">🗑 Limpiar Historial</button>
+      </div>
     </div>
 
+    <div class="card p-3">
+      <h5 class="mb-3">Listado de Movimientos</h5>
+      <div class="table-responsive scrollable">
+        <table class="table table-bordered text-center">
+          <thead class="table-light">
+            <tr>
+              <th>ID</th>
+              <th>Tipo</th>
+              <th>Producto</th>
+              <th>Cantidad</th>
+              <th>Origen</th>
+              <th>Destino</th>
+              <th>Fecha</th>
+              <th>Usuario</th>
+            </tr>
+          </thead>
+          <tbody id="tablaHistorial"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
-  <!-- JS: Sidebar toggle -->
-  <script>
-    function toggleSidebar() {
-      const sidebar = document.getElementById("sidebar");
-      sidebar.classList.toggle("collapsed");
-    }
-  </script>
+<script>
+function toggleSidebar() {
+  const sidebar = document.getElementById("sidebar");
+  sidebar.classList.toggle("collapsed");
+  document.querySelector(".main-content").style.marginLeft = sidebar.classList.contains("collapsed") ? "60px" : "220px";
+}
+
+const tablaHistorial = document.getElementById('tablaHistorial');
+
+document.addEventListener('DOMContentLoaded', cargarHistorial);
+
+function cargarHistorial() {
+  tablaHistorial.innerHTML = "";
+  const historial = JSON.parse(localStorage.getItem('historial')) || [];
+
+  if (historial.length === 0) {
+    tablaHistorial.innerHTML = `<tr><td colspan="8">Sin movimientos registrados.</td></tr>`;
+    return;
+  }
+
+  historial.forEach(item => {
+    const badgeColor = item.tipo === 'Entrada' ? 'success' : item.tipo === 'Salida' ? 'danger' : 'warning text-dark';
+    const fila = `<tr>
+      <td>${item.id}</td>
+      <td><span class="badge bg-${badgeColor}">${item.tipo}</span></td>
+      <td>${item.producto}</td>
+      <td>${item.cantidad}</td>
+      <td>${item.origen || '-'}</td>
+      <td>${item.destino || '-'}</td>
+      <td>${item.fecha}</td>
+      <td>${item.usuario}</td>
+    </tr>`;
+    tablaHistorial.innerHTML += fila;
+  });
+}
+
+function limpiarHistorial() {
+  if (confirm("¿Estás seguro de borrar todo el historial?")) {
+    localStorage.removeItem('historial');
+    cargarHistorial();
+  }
+}
+</script>
 
 </body>
 </html>

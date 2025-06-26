@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Navegación - Maestranza Unidos</title>
+  <title>Kits - Maestranza Unidos</title>
 
-  <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- Estilos -->
   <style>
     body {
-      margin: 0;
-      background-color: #f0f8ff;
+      background-color: #e0f7ff;
       font-family: 'Segoe UI', sans-serif;
+      margin: 0;
       overflow-x: hidden;
     }
 
@@ -36,17 +36,6 @@
     .topbar img {
       height: 50px;
       margin-left: 10px;
-    }
-
-    .hamburger-btn {
-      position: fixed;
-      top: 15px;
-      left: 15px;
-      font-size: 26px;
-      background: none;
-      border: none;
-      z-index: 1300;
-      color: #000;
     }
 
     .sidebar {
@@ -99,11 +88,37 @@
     .sidebar.collapsed .label {
       display: none;
     }
+
+    .hamburger-btn {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      font-size: 26px;
+      background: none;
+      border: none;
+      z-index: 1300;
+      color: #000;
+    }
+
+    .main-content {
+      margin-left: 220px;
+      margin-top: 60px;
+      padding: 30px 20px;
+      transition: margin-left 0.3s ease;
+    }
+
+    .sidebar.collapsed + .main-content {
+      margin-left: 60px;
+    }
+
+    .card {
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
   </style>
 </head>
 <body>
 
-  <!-- Barra superior -->
+  <!-- Topbar -->
   <div class="topbar">
     <img src="src/logo.jpg" alt="Logo" />
   </div>
@@ -111,6 +126,7 @@
   <!-- Botón hamburguesa -->
   <button class="hamburger-btn" onclick="toggleSidebar()">☰</button>
 
+  <!-- Sidebar -->
   <div id="sidebar" class="sidebar collapsed">
     <a href="index.html"><img src="https://img.icons8.com/ios-filled/24/000000/web.png" /><span class="label">Dashboard</span></a>
     <a href="inventario.html"><img src="https://img.icons8.com/ios-filled/24/000000/box.png" /><span class="label">Inventario</span></a>
@@ -123,20 +139,124 @@
     <a href="login.html"><img src="https://img.icons8.com/ios-filled/24/000000/logout-rounded-left.png" /><span class="label">Cerrar sesión</span></a>
   </div>
 
-    <div class="main-content">
-        <div>
-            <h1>
-                KITS
-            </h1>
-        </div>
+  <!-- Contenido principal -->
+  <div class="main-content">
+    <div class="d-flex justify-content-between flex-wrap mb-4">
+      <div class="bg-light p-3 rounded text-center flex-fill me-2">
+        <strong>GESTIÓN DE KITS Y CONJUNTOS</strong>
+      </div>
+      <div class="bg-light p-3 rounded text-center flex-fill ms-2">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#nuevoKitModal">➕ Crear Kit</button>
+      </div>
     </div>
 
+    <div class="row">
+      <div class="col-12 mb-4">
+        <div class="card">
+          <div class="card-header bg-primary text-white">Listado de Kits</div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-bordered m-0 text-center">
+                <thead class="table-light">
+                  <tr>
+                    <th>ID Kit</th>
+                    <th>Nombre</th>
+                    <th>Componentes</th>
+                    <th>Stock</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="tablaKits"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  <!-- JS: Sidebar toggle -->
+  <!-- Modal Crear Kit -->
+  <div class="modal fade" id="nuevoKitModal" tabindex="-1" aria-labelledby="nuevoKitModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title">Nuevo Kit</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <form id="formKit">
+            <div class="mb-3">
+              <label class="form-label">Nombre del Kit</label>
+              <input type="text" id="nombreKit" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Componentes (separados por coma)</label>
+              <textarea id="componentesKit" class="form-control" required></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Stock Disponible</label>
+              <input type="number" id="stockKit" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-success w-100">Guardar Kit</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
   <script>
     function toggleSidebar() {
       const sidebar = document.getElementById("sidebar");
       sidebar.classList.toggle("collapsed");
+      document.querySelector(".main-content").style.marginLeft = sidebar.classList.contains("collapsed") ? "60px" : "220px";
+    }
+
+    const tablaKits = document.getElementById('tablaKits');
+    const formKit = document.getElementById('formKit');
+
+    document.addEventListener('DOMContentLoaded', cargarKits);
+
+    formKit.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const nombre = document.getElementById('nombreKit').value.trim();
+      const componentes = document.getElementById('componentesKit').value.trim();
+      const stock = document.getElementById('stockKit').value.trim();
+      if (!nombre || !componentes || !stock) {
+        alert("Completa todos los campos.");
+        return;
+      }
+      const idKit = Date.now();
+      const nuevoKit = { id: idKit, nombre, componentes, stock };
+      let kits = JSON.parse(localStorage.getItem('kits')) || [];
+      kits.push(nuevoKit);
+      localStorage.setItem('kits', JSON.stringify(kits));
+      formKit.reset();
+      const modal = bootstrap.Modal.getInstance(document.getElementById('nuevoKitModal'));
+      modal.hide();
+      cargarKits();
+    });
+
+    function cargarKits() {
+      tablaKits.innerHTML = "";
+      const kits = JSON.parse(localStorage.getItem('kits')) || [];
+      kits.forEach(kit => {
+        const fila = `<tr>
+          <td>${kit.id}</td>
+          <td>${kit.nombre}</td>
+          <td>${kit.componentes}</td>
+          <td>${kit.stock}</td>
+          <td><button class="btn btn-danger btn-sm" onclick="eliminarKit(${kit.id})">Eliminar</button></td>
+        </tr>`;
+        tablaKits.innerHTML += fila;
+      });
+    }
+
+    function eliminarKit(id) {
+      let kits = JSON.parse(localStorage.getItem('kits')) || [];
+      kits = kits.filter(kit => kit.id !== id);
+      localStorage.setItem('kits', JSON.stringify(kits));
+      cargarKits();
     }
   </script>
 
