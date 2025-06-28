@@ -169,7 +169,20 @@
               <input type="text" class="form-control form-control-sm" id="marca" placeholder="Ej: Caterpillar">
             </div>
           </div>
-
+          <div class="row mb-2">
+            <div class="col-md-4">
+              <label for="categoria" class="form-label">Categoría</label>
+              <input type="text" class="form-control form-control-sm" id="categoria" placeholder="Ej: CNC, Torno">
+            </div>
+            <div class="col-md-4">
+              <label for="etiquetas" class="form-label">Etiquetas</label>
+              <input type="text" class="form-control form-control-sm" id="etiquetas" placeholder="Ej: mantenimiento, corte">
+            </div>
+            <div class="col-md-4">
+              <label for="stockMax" class="form-label">Stock Máximo</label>
+              <input type="number" class="form-control form-control-sm" id="stockMax" placeholder="Ej: 10">
+            </div>
+          </div>
           <div class="text-end mt-3">
             <button type="reset" class="btn btn-outline-secondary btn-sm">Limpiar</button>
             <button type="submit" class="btn btn-success btn-sm">Agregar maquinaria</button>
@@ -198,7 +211,10 @@
         nombre: document.getElementById("nombre").value,
         modelo: document.getElementById("modelo").value,
         marca: document.getElementById("marca").value,
-        stock: 0
+        stock: 0,
+        categoria: document.getElementById("categoria").value.trim(),
+        etiquetas: document.getElementById("etiquetas").value.split(',').map(e => e.trim()),
+        stockMax: parseInt(document.getElementById("stockMax").value) || 0
       };
 
       maquinarias.push(nuevaMaquinaria);

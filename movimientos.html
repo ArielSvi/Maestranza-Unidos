@@ -80,24 +80,20 @@
           <option value="Transferencia">Transferencia</option>
         </select>
       </div>
-
-<div class="col-md-3">
-  <label class="form-label">Tipo de Inventario</label>
-  <select id="tipoInventario" class="form-select" required onchange="cargarOpcionesInventario()">
-    <option selected disabled value="">Selecciona...</option>
-    <option value="productos">Producto</option>
-    <option value="maquinarias">Maquinaria</option>
-  </select>
-</div>
-
-<div class="col-md-3">
-  <label class="form-label">Modelo</label>
-  <select id="producto" class="form-select" required>
-    <option selected disabled value="">Selecciona tipo primero</option>
-  </select>
-</div>
-
-
+      <div class="col-md-3">
+        <label class="form-label">Tipo de Inventario</label>
+        <select id="tipoInventario" class="form-select" required onchange="cargarOpcionesInventario()">
+          <option selected disabled value="">Selecciona...</option>
+          <option value="productos">Producto</option>
+          <option value="maquinarias">Maquinaria</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Modelo</label>
+        <select id="producto" class="form-select" required>
+          <option selected disabled value="">Selecciona tipo primero</option>
+        </select>
+      </div>
       <div class="col-md-2">
         <label class="form-label">Cantidad</label>
         <input type="number" id="cantidad" class="form-control" min="1" required>
@@ -120,42 +116,19 @@
       </div>
     </form>
   </div>
-  <!--
-    <div class="card p-3">
-      <h5 class="mb-3">Movimientos registrados</h5>
-      <div class="table-responsive scrollable">
-        <table class="table table-bordered text-center">
-          <thead class="table-light">
-            <tr>
-              <th>ID</th>
-              <th>Tipo</th>
-              <th>Producto</th>
-              <th>Cantidad</th>
-              <th>Origen</th>
-              <th>Destino</th>
-              <th>Fecha</th>
-              <th>Usuario</th>
-          </tr>
-        </thead>
-        <tbody id="tablaMovimientos"></tbody>
-      </table>
-    </div>
-  </div>
-  -->
-  
 </div>
+
 <script>
-  function toggleSidebar() {
-    const sidebar = document.getElementById("sidebar");
-    sidebar.classList.toggle("collapsed");
-    document.querySelector(".main-content").style.marginLeft = sidebar.classList.contains("collapsed") ? "60px" : "220px";
-  }
-  
+function toggleSidebar() {
+  const sidebar = document.getElementById("sidebar");
+  sidebar.classList.toggle("collapsed");
+  document.querySelector(".main-content").style.marginLeft = sidebar.classList.contains("collapsed") ? "60px" : "220px";
+}
+
 function mostrarUbicaciones() {
   const tipo = document.getElementById("tipo").value;
   document.getElementById("divOrigen").classList.add("d-none");
   document.getElementById("divDestino").classList.add("d-none");
-  if (tipo === "Entrada") document.getElementById("divDestino").classList.remove("d-none");
   if (tipo === "Salida") document.getElementById("divOrigen").classList.remove("d-none");
   if (tipo === "Transferencia") {
     document.getElementById("divOrigen").classList.remove("d-none");
@@ -164,12 +137,6 @@ function mostrarUbicaciones() {
 }
 
 const form = document.getElementById("formMovimiento");
-const tabla = document.getElementById("tablaMovimientos");
-
-document.addEventListener("DOMContentLoaded", () => {
-  cargarMovimientos();
-  cargarOpcionesInventario();
-});
 
 form.addEventListener("submit", e => {
   e.preventDefault();
@@ -181,40 +148,41 @@ form.addEventListener("submit", e => {
   const id = Date.now();
   const origen = document.getElementById("origen").value || "-";
   const destino = document.getElementById("destino").value || "-";
+  const tipoInventario = document.getElementById("tipoInventario").value;
+
+  const productos = JSON.parse(localStorage.getItem("productos") || "[]");
+  const maquinarias = JSON.parse(localStorage.getItem("maquinarias") || "[]");
+  const inventario = tipoInventario === "productos" ? productos : maquinarias;
+
+  const item = inventario.find(p => p.modelo.toLowerCase() === producto.toLowerCase());
+  if (tipo === "Entrada" && item) {
+    const nuevoStock = item.stock + cantidad;
+    if (item.stockMax && nuevoStock > item.stockMax) {
+      alert(`No se puede ingresar la cantidad. Supera el stock máximo de ${item.stockMax}.`);
+      return;
+    }
+  }
+  if ((tipo === "Salida" || tipo === "Transferencia") && item) {
+    if (cantidad > item.stock) {
+      alert(`No se puede retirar ${cantidad}. Stock actual disponible: ${item.stock}.`);
+      return;
+    }
+  }
 
   const movimiento = { id, tipo, producto, cantidad, usuario, fecha, origen, destino };
   let movimientos = JSON.parse(localStorage.getItem("historial")) || [];
   movimientos.push(movimiento);
   localStorage.setItem("historial", JSON.stringify(movimientos));
 
-  // ACTUALIZAR STOCK EN INVENTARIO
-  const productos = JSON.parse(localStorage.getItem("productos") || "[]");
-  const maquinarias = JSON.parse(localStorage.getItem("maquinarias") || "[]");
-
-  let actualizado = false;
-
-  productos.forEach(p => {
-    if (p.modelo.toLowerCase() === producto.toLowerCase()) {
+  inventario.forEach(i => {
+    if (i.modelo.toLowerCase() === producto.toLowerCase()) {
       if (tipo === "Entrada") {
-        p.stock += cantidad;
+        i.stock += cantidad;
       } else if (tipo === "Salida" || tipo === "Transferencia") {
-        p.stock = Math.max(0, p.stock - cantidad);
+        i.stock = Math.max(0, i.stock - cantidad);
       }
-      actualizado = true;
     }
   });
-
-  if (!actualizado) {
-    maquinarias.forEach(m => {
-      if (m.modelo.toLowerCase() === producto.toLowerCase()) {
-        if (tipo === "Entrada") {
-          m.stock += cantidad;
-        } else if (tipo === "Salida" || tipo === "Transferencia") {
-          m.stock = Math.max(0, m.stock - cantidad);
-        }
-      }
-    });
-  }
 
   localStorage.setItem("productos", JSON.stringify(productos));
   localStorage.setItem("maquinarias", JSON.stringify(maquinarias));
@@ -222,9 +190,7 @@ form.addEventListener("submit", e => {
   form.reset();
   document.getElementById("divOrigen").classList.add("d-none");
   document.getElementById("divDestino").classList.add("d-none");
-  cargarMovimientos();
 });
-
 
 function cargarOpcionesInventario() {
   const tipo = document.getElementById("tipoInventario").value;
