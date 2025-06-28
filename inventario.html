@@ -47,17 +47,32 @@
 
 <button class="hamburger-btn" onclick="toggleSidebar()">☰</button>
 
-<div id="sidebar" class="sidebar collapsed">
-  <a href="index.html"><img src="https://img.icons8.com/ios-filled/24/000000/web.png"><span class="label">Dashboard</span></a>
-  <a href="inventario.html"><img src="https://img.icons8.com/ios-filled/24/000000/box.png"><span class="label">Inventario</span></a>
-  <a href="movimientos.html"><img src="https://img.icons8.com/ios-filled/24/000000/refresh.png"><span class="label">Movimientos</span></a>
-  <a href="reportes.html"><img src="https://img.icons8.com/ios-filled/24/000000/document.png"><span class="label">Reportes</span></a>
-  <a href="kits.html"><img src="https://img.icons8.com/ios-filled/24/000000/package.png"><span class="label">Kits</span></a>
-  <a href="historial.html"><img src="https://img.icons8.com/ios-filled/24/000000/time-machine.png"><span class="label">Historial</span></a>
-  <a href="configuracion.html"><img src="https://img.icons8.com/ios-filled/24/000000/settings.png"><span class="label">Configuración</span></a>
-  <a href="compras.html"><img src="https://img.icons8.com/ios-filled/24/000000/shop.png"><span class="label">Compras</span></a>
-  <a href="login.html"><img src="https://img.icons8.com/ios-filled/24/000000/logout-rounded-left.png"><span class="label">Cerrar sesión</span></a>
-</div>
+  <!-- Sidebar -->
+  <div id="sidebar" class="sidebar collapsed">
+    <a href="index.html"><img src="https://img.icons8.com/ios-filled/24/000000/web.png" /><span class="label">Dashboard</span></a>
+    <div id="sidebar-inventario">
+      <a href="inventario.html"><img src="https://img.icons8.com/ios-filled/24/000000/box.png" /><span class="label">Inventario</span></a>
+    </div>
+    <div id="sidebar-movimientos">
+      <a href="movimientos.html"><img src="https://img.icons8.com/ios-filled/24/000000/refresh.png" /><span class="label">Movimientos</span></a>
+    </div>
+    <div id="sidebar-reportes">
+      <a href="reportes.html"><img src="https://img.icons8.com/ios-filled/24/000000/document.png" /><span class="label">Reportes</span></a>
+    </div>
+    <div id="sidebar-kits">
+      <a href="kits.html"><img src="https://img.icons8.com/ios-filled/24/000000/package.png" /><span class="label">Kits / Conjuntos</span></a>
+    </div>
+    <div id="sidebar-historial">
+      <a href="historial.html"><img src="https://img.icons8.com/ios-filled/24/000000/time-machine.png" /><span class="label">Historial</span></a>
+    </div>
+    <div id="sidebar-compras">
+      <a href="compras.html"><img src="https://img.icons8.com/ios-filled/24/000000/shop.png" /><span class="label">Compras</span></a>
+    </div>
+    <div id="sidebar-configuracion">
+      <a href="configuracion.html"><img src="https://img.icons8.com/ios-filled/24/000000/settings.png" /><span class="label">Configuración</span></a>
+    </div>
+    <a href="login.html"><img src="https://img.icons8.com/ios-filled/24/000000/logout-rounded-left.png" /><span class="label">Cerrar sesión</span></a>
+  </div>
 
 <div class="main-content">
   <div class="container d-flex flex-column align-items-center mb-4">
@@ -124,6 +139,8 @@
   </div>
 </div>
 
+<script src="storageProducto.js"></script>
+<script src="storageMaquinaria.js"></script>
 <script>
 function toggleSidebar() {
   const sidebar = document.getElementById("sidebar");
@@ -136,53 +153,19 @@ document.getElementById('btnMaquinaria').onclick = () => {
   document.getElementById('tablaProductos').classList.add('d-none');
   cargarTabla('maquinaria');
 };
+
 document.getElementById('btnProductos').onclick = () => {
   document.getElementById('tablaProductos').classList.remove('d-none');
   document.getElementById('tablaMaquinaria').classList.add('d-none');
   cargarTabla('producto');
 };
 
-function cargarTabla(tipo){
-  let items = JSON.parse(localStorage.getItem(tipo+'s')) || [];
+function cargarTabla(tipo) {
+  const items = tipo === 'producto' ? obtenerProductos() : obtenerMaquinarias();
   let html = '';
-  items.forEach((d,i)=>{
-    html+=`<tr>
-      <td>${d.id}</td>
-      <td>${d.nombre}</td>
-      <td>${d.modelo}</td>
-      <td>${d.marca}</td>
-      <td>${d.categoria || ''}</td>
-      <td>${(d.etiquetas || []).join(', ')}</td>
-      <td>${d.stock}</td>
-      <td>
-        <button class="btn btn-sm btn-danger" onclick="eliminarItem('${tipo}',${i})">Eliminar</button>
-      </td>
-    </tr>`;
-  });
-  document.getElementById('tbody'+(tipo==='maquinaria'?'Maquinaria':'Productos')).innerHTML = html;
-}
-
-function eliminarItem(tipo, index){
-  if(confirm('¿Eliminar este registro?')){
-    let items = JSON.parse(localStorage.getItem(tipo+'s'));
-    items.splice(index,1);
-    localStorage.setItem(tipo+'s', JSON.stringify(items));
-    cargarTabla(tipo);
-  }
-}
-
-function filtrarInventario() {
-  const query = document.getElementById('filtroInventario').value.toLowerCase();
-
-  ['producto', 'maquinaria'].forEach(tipo => {
-    const items = JSON.parse(localStorage.getItem(tipo + 's')) || [];
-    const filtrados = items.filter(p =>
-      (p.categoria && p.categoria.toLowerCase().includes(query)) ||
-      (p.etiquetas && p.etiquetas.some(e => e.toLowerCase().includes(query)))
-    );
-    let html = '';
-    filtrados.forEach((d,i)=>{
-      html+=`<tr>
+  items.forEach((d, i) => {
+    html += `
+      <tr>
         <td>${d.id}</td>
         <td>${d.nombre}</td>
         <td>${d.modelo}</td>
@@ -191,13 +174,91 @@ function filtrarInventario() {
         <td>${(d.etiquetas || []).join(', ')}</td>
         <td>${d.stock}</td>
         <td>
-          <button class="btn btn-sm btn-danger" onclick="eliminarItem('${tipo}',${i})">Eliminar</button>
+          <button class="btn btn-sm btn-danger" onclick="eliminarItem('${tipo}', ${d.id})">Eliminar</button>
         </td>
       </tr>`;
+  });
+  document.getElementById('tbody' + (tipo === 'maquinaria' ? 'Maquinaria' : 'Productos')).innerHTML = html;
+}
+
+function eliminarItem(tipo, id) {
+  if (!confirm('¿Eliminar este registro?')) return;
+
+  if (tipo === 'producto') {
+    eliminarProductoPorId(id);
+    cargarTabla('producto');
+  } else {
+    eliminarMaquinariaPorId(id);
+    cargarTabla('maquinaria');
+  }
+}
+
+function filtrarInventario() {
+  const query = document.getElementById('filtroInventario').value.toLowerCase();
+
+  ['producto', 'maquinaria'].forEach(tipo => {
+    const items = tipo === 'producto' ? obtenerProductos() : obtenerMaquinarias();
+    const filtrados = items.filter(p =>
+      (p.categoria && p.categoria.toLowerCase().includes(query)) ||
+      (p.etiquetas && p.etiquetas.some(e => e.toLowerCase().includes(query)))
+    );
+
+    let html = '';
+    filtrados.forEach(d => {
+      html += `
+        <tr>
+          <td>${d.id}</td>
+          <td>${d.nombre}</td>
+          <td>${d.modelo}</td>
+          <td>${d.marca}</td>
+          <td>${d.categoria || ''}</td>
+          <td>${(d.etiquetas || []).join(', ')}</td>
+          <td>${d.stock}</td>
+          <td>
+            <button class="btn btn-sm btn-danger" onclick="eliminarItem('${tipo}', ${d.id})">Eliminar</button>
+          </td>
+        </tr>`;
     });
-    document.getElementById('tbody'+(tipo==='maquinaria'?'Maquinaria':'Productos')).innerHTML = html;
+
+    document.getElementById('tbody' + (tipo === 'maquinaria' ? 'Maquinaria' : 'Productos')).innerHTML = html;
   });
 }
 </script>
+
+<script>
+  const usuario = JSON.parse(localStorage.getItem("usuarioActivo"));
+
+  if (!usuario || !usuario.rol) {
+    alert("No hay sesión iniciada o el usuario no tiene rol definido.");
+    window.location.href = "login.html";
+  }
+
+  // Accesos por rol
+  const accesosPorRol = {
+    administrador: ["inventario", "movimientos", "reportes", "kits", "historial", "compras", "configuracion"],
+    bodeguero: ["inventario", "movimientos", "kits", "historial"],
+    comprador: ["compras"],
+    gestorInventario: ["inventario", "movimientos", "kits", "historial"],
+    encargadoLogistica: ["inventario", "movimientos", "historial"],
+    jefeProduccion: ["inventario", "kits"],
+    auditorInventario: ["inventario", "reportes", "historial"],
+    gerenteProyectos: ["reportes"],
+    trabajadorPlanta: []
+  };
+
+  const rol = usuario.rol;
+
+  const accesosPermitidos = accesosPorRol[rol] || [];
+
+  const secciones = ["inventario", "movimientos", "reportes", "kits", "historial", "compras", "configuracion"];
+
+  secciones.forEach(seccion => {
+    const elemento = document.getElementById(`sidebar-${seccion}`);
+    if (elemento && !accesosPermitidos.includes(seccion)) {
+      elemento.style.display = "none";
+    }
+  });
+</script>
+
 </body>
 </html>

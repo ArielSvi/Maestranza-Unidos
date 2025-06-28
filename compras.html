@@ -111,15 +111,30 @@
   <!-- Botón hamburguesa -->
   <button class="hamburger-btn" onclick="toggleSidebar()">☰</button>
 
+  <!-- Sidebar -->
   <div id="sidebar" class="sidebar collapsed">
     <a href="index.html"><img src="https://img.icons8.com/ios-filled/24/000000/web.png" /><span class="label">Dashboard</span></a>
-    <a href="inventario.html"><img src="https://img.icons8.com/ios-filled/24/000000/box.png" /><span class="label">Inventario</span></a>
-    <a href="movimientos.html"><img src="https://img.icons8.com/ios-filled/24/000000/refresh.png" /><span class="label">Movimientos</span></a>
-    <a href="reportes.html"><img src="https://img.icons8.com/ios-filled/24/000000/document.png" /><span class="label">Reportes</span></a>
-    <a href="kits.html"><img src="https://img.icons8.com/ios-filled/24/000000/package.png" /><span class="label">Kits / Conjuntos</span></a>
-    <a href="historial.html"><img src="https://img.icons8.com/ios-filled/24/000000/time-machine.png" /><span class="label">Historial</span></a>
-    <a href="configuracion.html"><img src="https://img.icons8.com/ios-filled/24/000000/settings.png" /><span class="label">Configuración</span></a>
-    <a href="compras.html"><img src="https://img.icons8.com/ios-filled/24/000000/shop.png" /><span class="label">Compras</span></a>
+    <div id="sidebar-inventario">
+      <a href="inventario.html"><img src="https://img.icons8.com/ios-filled/24/000000/box.png" /><span class="label">Inventario</span></a>
+    </div>
+    <div id="sidebar-movimientos">
+      <a href="movimientos.html"><img src="https://img.icons8.com/ios-filled/24/000000/refresh.png" /><span class="label">Movimientos</span></a>
+    </div>
+    <div id="sidebar-reportes">
+      <a href="reportes.html"><img src="https://img.icons8.com/ios-filled/24/000000/document.png" /><span class="label">Reportes</span></a>
+    </div>
+    <div id="sidebar-kits">
+      <a href="kits.html"><img src="https://img.icons8.com/ios-filled/24/000000/package.png" /><span class="label">Kits / Conjuntos</span></a>
+    </div>
+    <div id="sidebar-historial">
+      <a href="historial.html"><img src="https://img.icons8.com/ios-filled/24/000000/time-machine.png" /><span class="label">Historial</span></a>
+    </div>
+    <div id="sidebar-compras">
+      <a href="compras.html"><img src="https://img.icons8.com/ios-filled/24/000000/shop.png" /><span class="label">Compras</span></a>
+    </div>
+    <div id="sidebar-configuracion">
+      <a href="configuracion.html"><img src="https://img.icons8.com/ios-filled/24/000000/settings.png" /><span class="label">Configuración</span></a>
+    </div>
     <a href="login.html"><img src="https://img.icons8.com/ios-filled/24/000000/logout-rounded-left.png" /><span class="label">Cerrar sesión</span></a>
   </div>
 
@@ -128,7 +143,32 @@
         <a href="proveedores.html" class="btn btn-primary me-2">Ir a Proveedores</a>
         <a href="ordendecompra.html" class="btn btn-success">Generar Orden de Compra</a>
       </div>
+
+      <hr class="my-4">
+
+      <h4 class="mt-4">Historial de Órdenes de Compra</h4>
+      <div class="table-responsive mt-3">
+        <table class="table table-bordered text-center">
+          <thead class="table-light">
+            <tr>
+              <th>#</th>
+              <th>Proveedor</th>
+              <th>Fecha</th>
+              <th>Detalle de Productos</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaOrdenesCompra">
+            <!-- Contenido generado con JS -->
+          </tbody>
+        </table>
+      </div>
+
+
+
     </div>
+
+    
 
 
   <!-- JS: Sidebar toggle -->
@@ -138,6 +178,91 @@
       sidebar.classList.toggle("collapsed");
     }
   </script>
+
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      const tbody = document.getElementById("tablaOrdenesCompra");
+      const ordenes = obtenerOrdenesCompra();
+
+      if (ordenes.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5">No hay órdenes registradas.</td></tr>`;
+        return;
+      }
+
+      ordenes.forEach((orden, index) => {
+        const fila = document.createElement("tr");
+
+        // Construir resumen de productos con categoría y cantidad
+        const productosDetalle = orden.items.map(item => {
+          return `<div>[${item.categoria}] ${item.nombre} - ${item.cantidad}</div>`;
+        }).join("");
+
+        fila.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${orden.proveedorNombre}</td>
+          <td>${orden.fecha}</td>
+          <td>${productosDetalle}</td>
+          <td>
+            <button class="btn btn-sm btn-info" onclick="verDetalle(${index})">Ver Detalle</button>
+          </td>
+        `;
+
+        tbody.appendChild(fila);
+      });
+    });
+
+    function obtenerOrdenesCompra() {
+      return JSON.parse(localStorage.getItem("ordenesCompra")) || [];
+    }
+
+    function verDetalle(indice) {
+      const orden = obtenerOrdenesCompra()[indice];
+      const productos = orden.items.map(item =>
+        `• [${item.categoria}] ${item.nombre} x ${item.cantidad}`
+      ).join('\n');
+
+      alert(
+        `Proveedor: ${orden.proveedorNombre}\n` +
+        `Fecha: ${orden.fecha}\n` +
+        `Productos:\n${productos}`
+      );
+    }
+  </script>
+
+<script>
+  const usuario = JSON.parse(localStorage.getItem("usuarioActivo"));
+
+  if (!usuario || !usuario.rol) {
+    alert("No hay sesión iniciada o el usuario no tiene rol definido.");
+    window.location.href = "login.html";
+  }
+
+  // Accesos por rol
+  const accesosPorRol = {
+    administrador: ["inventario", "movimientos", "reportes", "kits", "historial", "compras", "configuracion"],
+    bodeguero: ["inventario", "movimientos", "kits", "historial"],
+    comprador: ["compras"],
+    gestorInventario: ["inventario", "movimientos", "kits", "historial"],
+    encargadoLogistica: ["inventario", "movimientos", "historial"],
+    jefeProduccion: ["inventario", "kits"],
+    auditorInventario: ["inventario", "reportes", "historial"],
+    gerenteProyectos: ["reportes"],
+    trabajadorPlanta: []
+  };
+
+  const rol = usuario.rol;
+
+  const accesosPermitidos = accesosPorRol[rol] || [];
+
+  const secciones = ["inventario", "movimientos", "reportes", "kits", "historial", "compras", "configuracion"];
+
+  secciones.forEach(seccion => {
+    const elemento = document.getElementById(`sidebar-${seccion}`);
+    if (elemento && !accesosPermitidos.includes(seccion)) {
+      elemento.style.display = "none";
+    }
+  });
+</script>
 
 </body>
 </html>
