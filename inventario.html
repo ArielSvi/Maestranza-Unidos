@@ -1,276 +1,219 @@
+<!-- Copia este archivo completo y reemplaza el original -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Panel de Inventario</title>
-
-  <!-- Bootstrap & ApexCharts -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <meta charset="UTF-8">
+  <title>Inventario - Maestranza Unidos</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-  <!-- Estilos personalizados -->
   <style>
-    body {
-      background-color: #e0f7ff;
-      font-family: 'Segoe UI', sans-serif;
-      margin: 0;
-      overflow-x: hidden;
-    }
-
+    body { background-color: #e0f7ff; font-family: 'Segoe UI', sans-serif; margin: 0; overflow-x: hidden; }
     .topbar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 60px;
-      background-color: #00bfff;
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      padding: 0 20px;
-      color: white;
-      font-weight: bold;
-      z-index: 1200;
+      position: fixed; top: 0; left: 0; right: 0;
+      height: 60px; background-color: #00bfff;
+      display: flex; justify-content: flex-end; align-items: center;
+      padding: 0 20px; color: white; font-weight: bold; z-index: 1200;
     }
-
-    .topbar img {
-      height: 50px;
-      margin-left: 10px;
-    }
-
+    .topbar img { height: 50px; margin-left: 10px; }
     .sidebar {
-      width: 220px;
-      height: calc(100vh - 60px);
-      background-color: #c9f2fc;
-      position: fixed;
-      top: 60px;
-      left: 0;
-      padding-top: 10px;
-      transition: all 0.3s ease;
-      z-index: 1000;
-      overflow-y: auto;
+      width: 220px; height: calc(100vh - 60px);
+      background-color: #c9f2fc; position: fixed; top: 60px; left: 0;
+      padding-top: 10px; overflow-y: auto; transition: all 0.3s ease; z-index: 1000;
     }
-
-    .sidebar.collapsed {
-      width: 60px;
-    }
-
+    .sidebar.collapsed { width: 60px; }
     .sidebar a {
-      display: flex;
-      align-items: center;
-      padding: 12px 20px;
-      color: #000;
-      text-decoration: none;
-      font-weight: 500;
-      transition: background-color 0.3s ease;
+      display: flex; align-items: center;
+      padding: 12px 20px; color: #000; text-decoration: none; font-weight: 500;
     }
-
-    .sidebar a:hover {
-      background-color: #bdefff;
-      border-radius: 0 20px 20px 0;
-    }
-
-    .sidebar img {
-      width: 20px;
-      height: 20px;
-      margin-right: 12px;
-      flex-shrink: 0;
-    }
-
-    .sidebar .label {
-      transition: opacity 0.2s ease;
-    }
-
-    .sidebar.collapsed a {
-      justify-content: center;
-    }
-
-    .sidebar.collapsed .label {
-      display: none;
-    }
-
+    .sidebar a:hover { background-color: #bdefff; border-radius: 0 20px 20px 0; }
+    .sidebar img { width: 20px; height: 20px; margin-right: 12px; flex-shrink: 0; }
+    .sidebar.collapsed a { justify-content: center; }
+    .sidebar.collapsed .label { display: none; }
     .hamburger-btn {
-      position: fixed;
-      top: 15px;
-      left: 15px;
-      font-size: 26px;
-      background: none;
-      border: none;
-      z-index: 1300;
-      color: #000;
+      position: fixed; top: 15px; left: 15px;
+      font-size: 26px; background: none; border: none; z-index: 1300; color: #000;
     }
-
     .main-content {
-      margin-left: 220px;
-      margin-top: 60px;
-      padding: 30px 20px;
-      transition: margin-left 0.3s ease;
+      margin-left: 220px; margin-top: 60px; padding: 30px 20px; transition: margin-left 0.3s ease;
     }
-
-    .sidebar.collapsed + .main-content {
-      margin-left: 60px;
-    }
-
-    .stock-critical {
-      background-color: red !important;
-    }
-
-    .stock-low {
-      background-color: yellow !important;
-    }
-
-    .scrollable {
-      max-height: 200px;
-      overflow-y: auto;
-    }
-
-    .card {
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
+    .sidebar.collapsed + .main-content { margin-left: 60px; }
+    .card { box-shadow: 0 0 10px rgba(0,0,0,0.1); }
   </style>
 </head>
 <body>
 
-  <!-- Barra superior -->
-  <div class="topbar">
-    <img src="src/logo.jpeg" alt="Logo" />
-  </div>
-
-  <!-- Botón hamburguesa -->
-  <button class="hamburger-btn" onclick="toggleSidebar()">☰</button>
-
-  <div id="sidebar" class="sidebar collapsed">
-    <a href="index.html"><img src="https://img.icons8.com/ios-filled/24/000000/web.png" /><span class="label">Dashboard</span></a>
-    <a href="inventario.html"><img src="https://img.icons8.com/ios-filled/24/000000/box.png" /><span class="label">Inventario</span></a>
-    <a href="movimientos.html"><img src="https://img.icons8.com/ios-filled/24/000000/refresh.png" /><span class="label">Movimientos</span></a>
-    <a href="reportes.html"><img src="https://img.icons8.com/ios-filled/24/000000/document.png" /><span class="label">Reportes</span></a>
-    <a href="kits.html"><img src="https://img.icons8.com/ios-filled/24/000000/package.png" /><span class="label">Kits / Conjuntos</span></a>
-    <a href="historial.html"><img src="https://img.icons8.com/ios-filled/24/000000/time-machine.png" /><span class="label">Historial</span></a>
-    <a href="configuracion.html"><img src="https://img.icons8.com/ios-filled/24/000000/settings.png" /><span class="label">Configuración</span></a>
-    <a href="compras.html"><img src="https://img.icons8.com/ios-filled/24/000000/shop.png" /><span class="label">Compras</span></a>
-    <a href="login.html"><img src="https://img.icons8.com/ios-filled/24/000000/logout-rounded-left.png" /><span class="label">Cerrar sesión</span></a>
-  </div>
-
-  <!-- Contenido principal -->
-  <div class="main-content">
-    <!--AQUI DENTRO VA EL CODIGO-->
-  </div>
-
-  <!-- JS: Fecha actual -->
-  <script>
-    document.getElementById('fecha').textContent = new Date().toLocaleDateString('es-CL', {
-      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-    });
-  </script>
-
-  <!-- JS: Sidebar toggle -->
-  <script>
-    function toggleSidebar() {
-      const sidebar = document.getElementById("sidebar");
-      sidebar.classList.toggle("collapsed");
-      const main = document.querySelector(".main-content");
-      main.style.marginLeft = sidebar.classList.contains("collapsed") ? "60px" : "220px";
-    }
-  </script>
-
-
-  <!-- FIN DE LA BASE -->
-
-
- <!-- Controles de Inventario -->
-<div class="container d-flex flex-column align-items-center mb-4">
-  <div class="d-flex gap-3">
-    <button class="btn btn-outline-primary" id="btnMaquinaria">Inventario de Maquinaria</button>
-    <button class="btn btn-outline-success" id="btnProductos">Inventario de Productos</button>
-  </div>
+<div class="topbar">
+  <img src="src/logo.jpeg" alt="Logo">
 </div>
 
-<!-- Tabla: Maquinaria -->
-<div id="tablaMaquinaria" class="hidden">
-  <div class="container d-flex flex-column align-items-center">
-    <div class="d-flex justify-content-between align-items-center mb-2 w-100" style="max-width: 1000px;">
-      <h4>Inventario de Maquinaria</h4>
-      <button class="btn btn-primary">Crear Maquinaria</button>
+<button class="hamburger-btn" onclick="toggleSidebar()">☰</button>
+
+<div id="sidebar" class="sidebar collapsed">
+  <a href="index.html"><img src="https://img.icons8.com/ios-filled/24/000000/web.png"><span class="label">Dashboard</span></a>
+  <a href="inventario.html"><img src="https://img.icons8.com/ios-filled/24/000000/box.png"><span class="label">Inventario</span></a>
+  <a href="movimientos.html"><img src="https://img.icons8.com/ios-filled/24/000000/refresh.png"><span class="label">Movimientos</span></a>
+  <a href="reportes.html"><img src="https://img.icons8.com/ios-filled/24/000000/document.png"><span class="label">Reportes</span></a>
+  <a href="kits.html"><img src="https://img.icons8.com/ios-filled/24/000000/package.png"><span class="label">Kits</span></a>
+  <a href="historial.html"><img src="https://img.icons8.com/ios-filled/24/000000/time-machine.png"><span class="label">Historial</span></a>
+  <a href="configuracion.html"><img src="https://img.icons8.com/ios-filled/24/000000/settings.png"><span class="label">Configuración</span></a>
+  <a href="compras.html"><img src="https://img.icons8.com/ios-filled/24/000000/shop.png"><span class="label">Compras</span></a>
+  <a href="login.html"><img src="https://img.icons8.com/ios-filled/24/000000/logout-rounded-left.png"><span class="label">Cerrar sesión</span></a>
+</div>
+
+<div class="main-content">
+  <div class="container d-flex flex-column align-items-center mb-4">
+    <div class="d-flex gap-3">
+      <button class="btn btn-outline-primary" id="btnMaquinaria">Maquinaria</button>
+      <button class="btn btn-outline-success" id="btnProductos">Productos</button>
     </div>
-    <div class="table-responsive w-100" style="max-width: 1000px;">
-      <table class="table table-bordered table-striped text-center">
-        <thead class="table-primary">
-          <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Modelo</th>
-            <th>Stock</th>
-            <th>Proveedor</th>
-            <th>Ubicación</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>MCH-001</td>
-            <td>Excavadora espantaviejas3000</td>
-            <td>ZX200-5G</td>
-            <td>5</td>
-            <td>Hitachi</td>
-            <td>Bodega Central</td>
-            <td>
-              <button class="btn btn-sm btn-info">Editar</button>
-              <button class="btn btn-sm btn-danger">Eliminar</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+  </div>
+
+  <div id="tablaMaquinaria" class="d-none">
+    <div class="card p-3">
+      <div class="d-flex justify-content-between mb-3">
+        <h5>Inventario de Maquinaria</h5>
+        <a href="crearmaquinaria.html" class="btn btn-primary">Agregar Maquinaria</a>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-bordered text-center">
+          <thead class="table-primary">
+            <tr>
+              <th>ID</th><th>Nombre</th><th>Modelo</th><th>Stock</th><th>Proveedor</th><th>Ubicación</th><th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyMaquinaria"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div id="tablaProductos" class="d-none">
+    <div class="card p-3">
+      <div class="d-flex justify-content-between mb-3">
+        <h5>Inventario de Productos</h5>
+        <a href="crearproducto.html" class="btn btn-success">Agregar Producto</a>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-bordered text-center">
+          <thead class="table-success">
+            <tr>
+              <th>ID</th><th>Nombre</th><th>Código</th><th>Stock</th><th>Proveedor</th><th>Ubicación</th><th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyProductos"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- Tabla: Productos -->
-<div id="tablaProductos" class="hidden">
-  <div class="container d-flex flex-column align-items-center">
-    <div class="d-flex justify-content-between align-items-center mb-2 w-100" style="max-width: 1000px;">
-      <h4>Inventario de Productos</h4>
-      <button class="btn btn-success">Crear Producto</button>
-    </div>
-    <div class="table-responsive w-100" style="max-width: 1000px;">
-      <table class="table table-bordered table-striped text-center">
-        <thead class="table-success">
-          <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Código</th>
-            <th>Stock</th>
-            <th>Proveedor</th>
-            <th>Ubicación</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>PROD-001</td>
-            <td>Aceite los tres chanchitos</td>
-            <td>FA123</td>
-            <td>20</td>
-            <td>CAT</td>
-            <td>Estante A1</td>
-            <td>
-              <button class="btn btn-sm btn-info">Editar</button>
-              <button class="btn btn-sm btn-danger">Eliminar</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+<div class="modal fade" id="modalItem" tabindex="-1">
+  <div class="modal-dialog">
+    <form id="formItem" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalTitulo"></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="itemTipo">
+        <input type="hidden" id="itemId">
+        <div class="mb-2"><input type="text" class="form-control" id="itemNombre" placeholder="Nombre" required></div>
+        <div class="mb-2"><input type="text" class="form-control" id="itemModelo" placeholder="Modelo/Código" required></div>
+        <div class="mb-2"><input type="number" class="form-control" id="itemStock" placeholder="Stock" required></div>
+        <div class="mb-2"><input type="text" class="form-control" id="itemProveedor" placeholder="Proveedor" required></div>
+        <div class="mb-2"><input type="text" class="form-control" id="itemUbicacion" placeholder="Ubicación" required></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" type="submit">Guardar</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+      </div>
+    </form>
   </div>
 </div>
 
+<script>
+function toggleSidebar() {
+  const sidebar = document.getElementById("sidebar");
+  sidebar.classList.toggle("collapsed");
+  document.querySelector(".main-content").style.marginLeft = sidebar.classList.contains("collapsed") ? "60px" : "220px";
+}
 
+document.getElementById('btnMaquinaria').onclick = () => {
+  document.getElementById('tablaMaquinaria').classList.remove('d-none');
+  document.getElementById('tablaProductos').classList.add('d-none');
+  cargarTabla('maquinaria');
+};
+document.getElementById('btnProductos').onclick = () => {
+  document.getElementById('tablaProductos').classList.remove('d-none');
+  document.getElementById('tablaMaquinaria').classList.add('d-none');
+  cargarTabla('producto');
+};
 
+function abrirModal(tipo, index=null) {
+  document.getElementById('itemTipo').value = tipo;
+  document.getElementById('modalTitulo').innerText = index!==null ? 'Editar' : 'Nueva';
+  if(index!==null){
+    let datos = JSON.parse(localStorage.getItem(tipo+'s'))[index];
+    document.getElementById('itemId').value = index;
+    document.getElementById('itemNombre').value = datos.nombre;
+    document.getElementById('itemModelo').value = datos.modelo;
+    document.getElementById('itemStock').value = datos.stock;
+    document.getElementById('itemProveedor').value = datos.proveedor;
+    document.getElementById('itemUbicacion').value = datos.ubicacion;
+  } else {
+    document.getElementById('formItem').reset();
+    document.getElementById('itemId').value = '';
+  }
+  new bootstrap.Modal(document.getElementById('modalItem')).show();
+}
 
-  </div>
+document.getElementById('formItem').onsubmit = function(e){
+  e.preventDefault();
+  let tipo = document.getElementById('itemTipo').value;
+  let items = JSON.parse(localStorage.getItem(tipo+'s')) || [];
+  let idx = document.getElementById('itemId').value;
+  let obj = {
+    id: idx === '' ? Date.now() : items[idx].id,
+    nombre: document.getElementById('itemNombre').value,
+    modelo: document.getElementById('itemModelo').value,
+    stock: parseInt(document.getElementById('itemStock').value),
+    proveedor: document.getElementById('itemProveedor').value,
+    ubicacion: document.getElementById('itemUbicacion').value
+  };
+  if(idx==='') items.push(obj); else items[idx]=obj;
+  localStorage.setItem(tipo+'s', JSON.stringify(items));
+  bootstrap.Modal.getInstance(document.getElementById('modalItem')).hide();
+  cargarTabla(tipo);
+};
 
+function eliminarItem(tipo, index){
+  if(confirm('¿Eliminar este registro?')){
+    let items = JSON.parse(localStorage.getItem(tipo+'s'));
+    items.splice(index,1);
+    localStorage.setItem(tipo+'s', JSON.stringify(items));
+    cargarTabla(tipo);
+  }
+}
 
+function cargarTabla(tipo){
+  let items = JSON.parse(localStorage.getItem(tipo+'s')) || [];
+  let html = '';
+  items.forEach((d,i)=>{
+    html+=`<tr>
+      <td>${d.id}</td>
+      <td>${d.nombre}</td>
+      <td>${d.modelo}</td>
+      <td>${d.stock}</td>
+      <td>${d.proveedor}</td>
+      <td>${d.ubicacion}</td>
+      <td>
+        <button class="btn btn-sm btn-info" onclick="abrirModal('${tipo}',${i})">Editar</button>
+        <button class="btn btn-sm btn-danger" onclick="eliminarItem('${tipo}',${i})">Eliminar</button>
+      </td>
+    </tr>`;
+  });
+  document.getElementById('tbody'+(tipo==='maquinaria'?'Maquinaria':'Productos')).innerHTML = html;
+}
+</script>
 </body>
-
-
 </html>

@@ -4,156 +4,123 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Movimientos - Maestranza Unidos</title>
-
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
   <style>
-    body {
-      background-color: #e0f7ff;
-      font-family: 'Segoe UI', sans-serif;
-      margin: 0;
-      overflow-x: hidden;
-    }
+    body { background-color: #e0f7ff; font-family: 'Segoe UI', sans-serif; margin: 0; overflow-x: hidden; }
     .topbar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 60px;
-      background-color: #00bfff;
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      padding: 0 20px;
-      color: white;
-      font-weight: bold;
-      z-index: 1200;
+      position: fixed; top: 0; left: 0; right: 0;
+      height: 60px; background-color: #00bfff;
+      display: flex; justify-content: flex-end; align-items: center;
+      padding: 0 20px; color: white; font-weight: bold; z-index: 1200;
     }
     .topbar img { height: 50px; margin-left: 10px; }
     .sidebar {
-      width: 220px;
-      height: calc(100vh - 60px);
-      background-color: #c9f2fc;
-      position: fixed;
-      top: 60px;
-      left: 0;
-      padding-top: 10px;
-      transition: all 0.3s ease;
-      z-index: 1000;
-      overflow-y: auto;
+      width: 220px; height: calc(100vh - 60px);
+      background-color: #c9f2fc; position: fixed; top: 60px; left: 0;
+      padding-top: 10px; transition: all 0.3s ease; z-index: 1000; overflow-y: auto;
     }
     .sidebar.collapsed { width: 60px; }
     .sidebar a {
-      display: flex;
-      align-items: center;
-      padding: 12px 20px;
-      color: #000;
-      text-decoration: none;
-      font-weight: 500;
+      display: flex; align-items: center;
+      padding: 12px 20px; color: #000; text-decoration: none; font-weight: 500;
     }
-    .sidebar a:hover {
-      background-color: #bdefff;
-      border-radius: 0 20px 20px 0;
-    }
+    .sidebar a:hover { background-color: #bdefff; border-radius: 0 20px 20px 0; }
     .sidebar img { width: 20px; height: 20px; margin-right: 12px; flex-shrink: 0; }
     .sidebar.collapsed a { justify-content: center; }
     .sidebar.collapsed .label { display: none; }
     .hamburger-btn {
-      position: fixed;
-      top: 15px;
-      left: 15px;
-      font-size: 26px;
-      background: none;
-      border: none;
-      z-index: 1300;
-      color: #000;
+      position: fixed; top: 15px; left: 15px;
+      font-size: 26px; background: none; border: none; z-index: 1300; color: #000;
     }
     .main-content {
-      margin-left: 220px;
-      margin-top: 60px;
-      padding: 30px 20px;
+      margin-left: 220px; margin-top: 60px; padding: 30px 20px;
       transition: margin-left 0.3s ease;
     }
-    .sidebar.collapsed + .main-content {
-      margin-left: 60px;
-    }
-    .card {
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    .scrollable {
-      max-height: 250px;
-      overflow-y: auto;
-    }
+    .sidebar.collapsed + .main-content { margin-left: 60px; }
+    .card { box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    .scrollable { max-height: 250px; overflow-y: auto; }
   </style>
 </head>
 <body>
 
-  <div class="topbar">
-    <img src="src/logo.jpg" alt="Logo" />
+<div class="topbar">
+  <img src="src/logo.jpg" alt="Logo" />
+</div>
+
+<button class="hamburger-btn" onclick="toggleSidebar()">☰</button>
+
+<div id="sidebar" class="sidebar collapsed">
+  <a href="index.html"><img src="https://img.icons8.com/ios-filled/24/000000/web.png"/><span class="label">Dashboard</span></a>
+  <a href="inventario.html"><img src="https://img.icons8.com/ios-filled/24/000000/box.png"/><span class="label">Inventario</span></a>
+  <a href="movimientos.html"><img src="https://img.icons8.com/ios-filled/24/000000/refresh.png"/><span class="label">Movimientos</span></a>
+  <a href="reportes.html"><img src="https://img.icons8.com/ios-filled/24/000000/document.png"/><span class="label">Reportes</span></a>
+  <a href="kits.html"><img src="https://img.icons8.com/ios-filled/24/000000/package.png"/><span class="label">Kits</span></a>
+  <a href="historial.html"><img src="https://img.icons8.com/ios-filled/24/000000/time-machine.png"/><span class="label">Historial</span></a>
+  <a href="configuracion.html"><img src="https://img.icons8.com/ios-filled/24/000000/settings.png"/><span class="label">Configuración</span></a>
+  <a href="compras.html"><img src="https://img.icons8.com/ios-filled/24/000000/shop.png"/><span class="label">Compras</span></a>
+  <a href="login.html"><img src="https://img.icons8.com/ios-filled/24/000000/logout-rounded-left.png"/><span class="label">Cerrar sesión</span></a>
+</div>
+
+<div class="main-content">
+  <div class="d-flex justify-content-between flex-wrap mb-4">
+    <div class="bg-light p-3 rounded text-center flex-fill me-2">
+      <strong>REGISTRO DE MOVIMIENTOS</strong>
+    </div>
   </div>
 
-  <button class="hamburger-btn" onclick="toggleSidebar()">☰</button>
-
-  <div id="sidebar" class="sidebar collapsed">
-    <a href="index.html"><img src="https://img.icons8.com/ios-filled/24/000000/web.png"/><span class="label">Dashboard</span></a>
-    <a href="inventario.html"><img src="https://img.icons8.com/ios-filled/24/000000/box.png"/><span class="label">Inventario</span></a>
-    <a href="movimientos.html"><img src="https://img.icons8.com/ios-filled/24/000000/refresh.png"/><span class="label">Movimientos</span></a>
-    <a href="reportes.html"><img src="https://img.icons8.com/ios-filled/24/000000/document.png"/><span class="label">Reportes</span></a>
-    <a href="kits.html"><img src="https://img.icons8.com/ios-filled/24/000000/package.png"/><span class="label">Kits</span></a>
-    <a href="historial.html"><img src="https://img.icons8.com/ios-filled/24/000000/time-machine.png"/><span class="label">Historial</span></a>
-    <a href="configuracion.html"><img src="https://img.icons8.com/ios-filled/24/000000/settings.png"/><span class="label">Configuración</span></a>
-    <a href="compras.html"><img src="https://img.icons8.com/ios-filled/24/000000/shop.png"/><span class="label">Compras</span></a>
-    <a href="login.html"><img src="https://img.icons8.com/ios-filled/24/000000/logout-rounded-left.png"/><span class="label">Cerrar sesión</span></a>
-  </div>
-
-  <div class="main-content">
-    <div class="d-flex justify-content-between flex-wrap mb-4">
-      <div class="bg-light p-3 rounded text-center flex-fill me-2">
-        <strong>REGISTRO DE MOVIMIENTOS</strong>
+  <div class="card p-4 mb-4">
+    <form id="formMovimiento" class="row g-3">
+      <div class="col-md-3">
+        <label class="form-label">Tipo</label>
+        <select id="tipo" class="form-select" required onchange="mostrarUbicaciones()">
+          <option selected disabled value="">Selecciona...</option>
+          <option value="Entrada">Entrada</option>
+          <option value="Salida">Salida</option>
+          <option value="Transferencia">Transferencia</option>
+        </select>
       </div>
-    </div>
 
-    <!-- Formulario -->
-    <div class="card p-4 mb-4">
-      <form id="formMovimiento" class="row g-3">
-        <div class="col-md-3">
-          <label class="form-label">Tipo</label>
-          <select id="tipo" class="form-select" required onchange="mostrarUbicaciones()">
-            <option selected disabled value="">Selecciona...</option>
-            <option value="Entrada">Entrada</option>
-            <option value="Salida">Salida</option>
-            <option value="Transferencia">Transferencia</option>
-          </select>
-        </div>
-        <div class="col-md-3">
-          <label class="form-label">Producto</label>
-          <input type="text" id="producto" class="form-control" required>
-        </div>
-        <div class="col-md-2">
-          <label class="form-label">Cantidad</label>
-          <input type="number" id="cantidad" class="form-control" min="1" required>
-        </div>
-        <div class="col-md-2">
-          <label class="form-label">Usuario</label>
-          <input type="text" id="usuario" class="form-control" value="admin" required>
-        </div>
-        <div class="col-md-3 d-none" id="divOrigen">
-          <label class="form-label">Origen</label>
-          <input type="text" id="origen" class="form-control">
-        </div>
-        <div class="col-md-3 d-none" id="divDestino">
-          <label class="form-label">Destino</label>
-          <input type="text" id="destino" class="form-control">
-        </div>
-        <div class="col-md-2">
-          <label class="form-label">&nbsp;</label>
-          <button type="submit" class="btn btn-primary w-100">Registrar</button>
-        </div>
-      </form>
-    </div>
+<div class="col-md-3">
+  <label class="form-label">Tipo de Inventario</label>
+  <select id="tipoInventario" class="form-select" required onchange="cargarOpcionesInventario()">
+    <option selected disabled value="">Selecciona...</option>
+    <option value="productos">Producto</option>
+    <option value="maquinarias">Maquinaria</option>
+  </select>
+</div>
 
-    <!-- Tabla de movimientos -->
+<div class="col-md-3">
+  <label class="form-label">Modelo</label>
+  <select id="producto" class="form-select" required>
+    <option selected disabled value="">Selecciona tipo primero</option>
+  </select>
+</div>
+
+
+      <div class="col-md-2">
+        <label class="form-label">Cantidad</label>
+        <input type="number" id="cantidad" class="form-control" min="1" required>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label">Usuario</label>
+        <input type="text" id="usuario" class="form-control" value="admin" required>
+      </div>
+      <div class="col-md-3 d-none" id="divOrigen">
+        <label class="form-label">Origen</label>
+        <input type="text" id="origen" class="form-control">
+      </div>
+      <div class="col-md-3 d-none" id="divDestino">
+        <label class="form-label">Destino</label>
+        <input type="text" id="destino" class="form-control">
+      </div>
+      <div class="col-md-2">
+        <label class="form-label">&nbsp;</label>
+        <button type="submit" class="btn btn-primary w-100">Registrar</button>
+      </div>
+    </form>
+  </div>
+  <!--
     <div class="card p-3">
       <h5 class="mb-3">Movimientos registrados</h5>
       <div class="table-responsive scrollable">
@@ -168,21 +135,22 @@
               <th>Destino</th>
               <th>Fecha</th>
               <th>Usuario</th>
-            </tr>
-          </thead>
-          <tbody id="tablaMovimientos"></tbody>
-        </table>
-      </div>
+          </tr>
+        </thead>
+        <tbody id="tablaMovimientos"></tbody>
+      </table>
     </div>
   </div>
-
+  -->
+  
+</div>
 <script>
-function toggleSidebar() {
-  const sidebar = document.getElementById("sidebar");
-  sidebar.classList.toggle("collapsed");
-  document.querySelector(".main-content").style.marginLeft = sidebar.classList.contains("collapsed") ? "60px" : "220px";
-}
-
+  function toggleSidebar() {
+    const sidebar = document.getElementById("sidebar");
+    sidebar.classList.toggle("collapsed");
+    document.querySelector(".main-content").style.marginLeft = sidebar.classList.contains("collapsed") ? "60px" : "220px";
+  }
+  
 function mostrarUbicaciones() {
   const tipo = document.getElementById("tipo").value;
   document.getElementById("divOrigen").classList.add("d-none");
@@ -198,13 +166,16 @@ function mostrarUbicaciones() {
 const form = document.getElementById("formMovimiento");
 const tabla = document.getElementById("tablaMovimientos");
 
-document.addEventListener("DOMContentLoaded", cargarMovimientos);
+document.addEventListener("DOMContentLoaded", () => {
+  cargarMovimientos();
+  cargarOpcionesInventario();
+});
 
 form.addEventListener("submit", e => {
   e.preventDefault();
   const tipo = document.getElementById("tipo").value;
   const producto = document.getElementById("producto").value;
-  const cantidad = document.getElementById("cantidad").value;
+  const cantidad = parseInt(document.getElementById("cantidad").value);
   const usuario = document.getElementById("usuario").value;
   const fecha = new Date().toLocaleString("es-CL");
   const id = Date.now();
@@ -216,31 +187,61 @@ form.addEventListener("submit", e => {
   movimientos.push(movimiento);
   localStorage.setItem("historial", JSON.stringify(movimientos));
 
+  // ACTUALIZAR STOCK EN INVENTARIO
+  const productos = JSON.parse(localStorage.getItem("productos") || "[]");
+  const maquinarias = JSON.parse(localStorage.getItem("maquinarias") || "[]");
+
+  let actualizado = false;
+
+  productos.forEach(p => {
+    if (p.modelo.toLowerCase() === producto.toLowerCase()) {
+      if (tipo === "Entrada") {
+        p.stock += cantidad;
+      } else if (tipo === "Salida" || tipo === "Transferencia") {
+        p.stock = Math.max(0, p.stock - cantidad);
+      }
+      actualizado = true;
+    }
+  });
+
+  if (!actualizado) {
+    maquinarias.forEach(m => {
+      if (m.modelo.toLowerCase() === producto.toLowerCase()) {
+        if (tipo === "Entrada") {
+          m.stock += cantidad;
+        } else if (tipo === "Salida" || tipo === "Transferencia") {
+          m.stock = Math.max(0, m.stock - cantidad);
+        }
+      }
+    });
+  }
+
+  localStorage.setItem("productos", JSON.stringify(productos));
+  localStorage.setItem("maquinarias", JSON.stringify(maquinarias));
+
   form.reset();
   document.getElementById("divOrigen").classList.add("d-none");
   document.getElementById("divDestino").classList.add("d-none");
   cargarMovimientos();
 });
 
-function cargarMovimientos() {
-  tabla.innerHTML = "";
-  const movimientos = JSON.parse(localStorage.getItem("historial")) || [];
-  movimientos.forEach(m => {
-    const badgeColor = m.tipo === 'Entrada' ? 'success' : m.tipo === 'Salida' ? 'danger' : 'warning text-dark';
-    const fila = `<tr>
-      <td>${m.id}</td>
-      <td><span class="badge bg-${badgeColor}">${m.tipo}</span></td>
-      <td>${m.producto}</td>
-      <td>${m.cantidad}</td>
-      <td>${m.origen}</td>
-      <td>${m.destino}</td>
-      <td>${m.fecha}</td>
-      <td>${m.usuario}</td>
-    </tr>`;
-    tabla.innerHTML += fila;
+
+function cargarOpcionesInventario() {
+  const tipo = document.getElementById("tipoInventario").value;
+  const select = document.getElementById("producto");
+  select.innerHTML = '<option selected disabled value="">Selecciona...</option>';
+
+  if (!tipo) return;
+
+  const items = JSON.parse(localStorage.getItem(tipo) || "[]");
+
+  items.forEach(item => {
+    const opt = document.createElement("option");
+    opt.value = item.modelo;
+    opt.textContent = `${item.nombre} (${item.modelo})`;
+    select.appendChild(opt);
   });
 }
 </script>
-
 </body>
 </html>
