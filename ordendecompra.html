@@ -142,17 +142,18 @@
       <h3>Crear Nueva Orden de Compra</h3>
 
       <div class="row g-3 mt-3">
-        <div class="col-md-6">
+        <div class="col-md-6 position-relative">
           <label class="form-label">Proveedor</label>
-          <select id="selectProveedor" class="form-select" required>
-            <option value="">Seleccione un proveedor</option>
-            <!-- Se llenará dinámicamente -->
-          </select>
+          <input type="text" id="inputProveedor" class="form-control" placeholder="Buscar proveedor..." autocomplete="off">
+          <ul id="listaProveedores" class="list-group position-absolute w-100" style="z-index: 1050; max-height: 150px; overflow-y: auto; display: none;"></ul>
         </div>
+        <input type="hidden" id="proveedorIdSeleccionado">
+
+
 
         <div class="col-md-6">
           <label class="form-label">Fecha</label>
-          <input id="inputFecha" type="date" class="form-control" required />
+          <input id="inputFecha" type="date" class="form-control" readonly tabindex="-1" />
         </div>
       </div>
 
@@ -166,9 +167,6 @@
         <div class="col-md-3">
           <input id="inputCantidad" type="number" class="form-control" placeholder="Cantidad" />
         </div>
-        <div class="col-md-3">
-          <input id="inputPrecio" type="number" class="form-control" placeholder="Precio Unitario" />
-        </div>
         <div class="col-md-2">
           <button class="btn btn-success w-100" onclick="agregarItem()">Agregar</button>
         </div>
@@ -180,8 +178,6 @@
             <tr>
               <th>Producto</th>
               <th>Cantidad</th>
-              <th>Precio Unitario</th>
-              <th>Total</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -210,18 +206,16 @@
       event.preventDefault();
       const producto = document.getElementById('inputProducto').value.trim();
       const cantidad = parseInt(document.getElementById('inputCantidad').value.trim());
-      const precio = parseFloat(document.getElementById('inputPrecio').value.trim());
 
-      if (!producto || isNaN(cantidad) || isNaN(precio)) {
+      if (!producto || isNaN(cantidad)) {
         alert("Completa todos los campos del producto");
         return;
       }
 
-      items.push({ producto, cantidad, precio });
+      items.push({ producto, cantidad });
       actualizarTabla();
       document.getElementById('inputProducto').value = '';
       document.getElementById('inputCantidad').value = '';
-      document.getElementById('inputPrecio').value = '';
     }
 
     function actualizarTabla() {
@@ -232,13 +226,12 @@
         fila.innerHTML = `
           <td>${item.producto}</td>
           <td>${item.cantidad}</td>
-          <td>$${item.precio.toFixed(2)}</td>
-          <td>$${(item.cantidad * item.precio).toFixed(2)}</td>
           <td><button class="btn btn-danger btn-sm" onclick="eliminarItem(${index})">Eliminar</button></td>
         `;
         tbody.appendChild(fila);
       });
     }
+
 
     function eliminarItem(index) {
       items.splice(index, 1);
@@ -246,41 +239,106 @@
     }
 
     function guardarOrden() {
-      const proveedorId = document.getElementById('selectProveedor').value;
+      const proveedorId = document.getElementById('proveedorIdSeleccionado').value;
+      const proveedorTexto = document.getElementById('inputProveedor').value.trim();
       const fecha = document.getElementById('inputFecha').value;
 
-      if (!proveedorId || !fecha || items.length === 0) {
-        alert("Completa todos los campos y agrega al menos un producto");
+      if (!proveedorId || proveedorTexto === "") {
+        alert("Debes seleccionar un proveedor válido desde la lista desplegable.");
         return;
       }
 
-      const ordenes = JSON.parse(localStorage.getItem('ordenesCompra')) || [];
-      const nuevaOrden = {
-        id: ordenes.length ? ordenes[ordenes.length - 1].id + 1 : 1,
-        proveedorId,
+      if (!fecha) {
+        alert("Debes ingresar una fecha válida.");
+        return;
+      }
+
+      if (items.length === 0) {
+        alert("Agrega al menos un producto a la orden.");
+        return;
+      }
+
+      agregarOrdenCompra({
+        proveedorId: parseInt(proveedorId),
+        proveedorNombre: proveedorTexto,
         fecha,
         items
-      };
-
-      ordenes.push(nuevaOrden);
-      localStorage.setItem('ordenesCompra', JSON.stringify(ordenes));
+      });
 
       alert("Orden de compra guardada correctamente");
       location.href = "compras.html";
     }
 
-    // Cargar proveedores en el select
+
+
+
+    let proveedoresDisponibles = [];
+
     window.addEventListener('DOMContentLoaded', () => {
-      const proveedores = JSON.parse(localStorage.getItem('proveedores')) || [];
-      const select = document.getElementById('selectProveedor');
-      proveedores.forEach(p => {
-        const option = document.createElement('option');
-        option.value = p.id;
-        option.textContent = `${p.nombre} (${p.rut})`;
-        select.appendChild(option);
-      });
+      proveedoresDisponibles = JSON.parse(localStorage.getItem('proveedores')) || [];
+      const hoy = new Date().toISOString().split('T')[0];
+      document.getElementById("inputFecha").value = hoy;
     });
+
+
+    const inputProveedor = document.getElementById("inputProveedor");
+    const lista = document.getElementById("listaProveedores");
+    const hiddenId = document.getElementById("proveedorIdSeleccionado");
+
+    inputProveedor.addEventListener("input", () => {
+      const texto = inputProveedor.value.toLowerCase();
+      lista.innerHTML = "";
+      if (texto.length === 0) {
+        lista.style.display = "none";
+        hiddenId.value = "";
+        return;
+      }
+
+      const coincidencias = proveedoresDisponibles.filter(p =>
+        p.nombre.toLowerCase().includes(texto) || p.rut.toLowerCase().includes(texto)
+      );
+
+      if (coincidencias.length === 0) {
+        lista.style.display = "none";
+        hiddenId.value = "";
+        return;
+      }
+
+      coincidencias.forEach(p => {
+        const item = document.createElement("li");
+        item.classList.add("list-group-item", "list-group-item-action");
+        item.textContent = `${p.nombre} (${p.rut})`;
+        item.addEventListener("click", () => {
+          inputProveedor.value = `${p.nombre} (${p.rut})`;
+          hiddenId.value = p.id;
+          lista.style.display = "none";
+        });
+        lista.appendChild(item);
+      });
+
+      lista.style.display = "block";
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!lista.contains(e.target) && e.target !== inputProveedor) {
+        lista.style.display = "none";
+      }
+    });
+    
+    inputProveedor.addEventListener("blur", () => {
+      const texto = inputProveedor.value.trim();
+      const seleccionado = proveedoresDisponibles.find(p => `${p.nombre} (${p.rut})` === texto);
+
+      if (!seleccionado) {
+        inputProveedor.value = "";
+        hiddenId.value = "";
+      }
+    });
+
+
   </script>
+
+  <script src="ordenCompraService.js"></script>
 
 </body>
 </html>
