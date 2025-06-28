@@ -7,6 +7,9 @@
 
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="storageProducto.js"></script>
+  <script src="storageMaquinaria.js"></script>
+  <script src="ordenCompraService.js"></script>
 
   <style>
     body {
@@ -125,15 +128,30 @@
 
   <button class="hamburger-btn" onclick="toggleSidebar()">☰</button>
 
+  <!-- Sidebar -->
   <div id="sidebar" class="sidebar collapsed">
     <a href="index.html"><img src="https://img.icons8.com/ios-filled/24/000000/web.png" /><span class="label">Dashboard</span></a>
-    <a href="inventario.html"><img src="https://img.icons8.com/ios-filled/24/000000/box.png" /><span class="label">Inventario</span></a>
-    <a href="movimientos.html"><img src="https://img.icons8.com/ios-filled/24/000000/refresh.png" /><span class="label">Movimientos</span></a>
-    <a href="reportes.html"><img src="https://img.icons8.com/ios-filled/24/000000/document.png" /><span class="label">Reportes</span></a>
-    <a href="kits.html"><img src="https://img.icons8.com/ios-filled/24/000000/package.png" /><span class="label">Kits / Conjuntos</span></a>
-    <a href="historial.html"><img src="https://img.icons8.com/ios-filled/24/000000/time-machine.png" /><span class="label">Historial</span></a>
-    <a href="configuracion.html"><img src="https://img.icons8.com/ios-filled/24/000000/settings.png" /><span class="label">Configuración</span></a>
-    <a href="compras.html"><img src="https://img.icons8.com/ios-filled/24/000000/shop.png" /><span class="label">Compras</span></a>
+    <div id="sidebar-inventario">
+      <a href="inventario.html"><img src="https://img.icons8.com/ios-filled/24/000000/box.png" /><span class="label">Inventario</span></a>
+    </div>
+    <div id="sidebar-movimientos">
+      <a href="movimientos.html"><img src="https://img.icons8.com/ios-filled/24/000000/refresh.png" /><span class="label">Movimientos</span></a>
+    </div>
+    <div id="sidebar-reportes">
+      <a href="reportes.html"><img src="https://img.icons8.com/ios-filled/24/000000/document.png" /><span class="label">Reportes</span></a>
+    </div>
+    <div id="sidebar-kits">
+      <a href="kits.html"><img src="https://img.icons8.com/ios-filled/24/000000/package.png" /><span class="label">Kits / Conjuntos</span></a>
+    </div>
+    <div id="sidebar-historial">
+      <a href="historial.html"><img src="https://img.icons8.com/ios-filled/24/000000/time-machine.png" /><span class="label">Historial</span></a>
+    </div>
+    <div id="sidebar-compras">
+      <a href="compras.html"><img src="https://img.icons8.com/ios-filled/24/000000/shop.png" /><span class="label">Compras</span></a>
+    </div>
+    <div id="sidebar-configuracion">
+      <a href="configuracion.html"><img src="https://img.icons8.com/ios-filled/24/000000/settings.png" /><span class="label">Configuración</span></a>
+    </div>
     <a href="login.html"><img src="https://img.icons8.com/ios-filled/24/000000/logout-rounded-left.png" /><span class="label">Cerrar sesión</span></a>
   </div>
 
@@ -161,21 +179,35 @@
 
       <h5>Agregar Producto a la Orden</h5>
       <div class="row g-3">
-        <div class="col-md-4">
-          <input id="inputProducto" type="text" class="form-control" placeholder="Producto" />
+        <div class="col-md-3">
+          <label class="form-label">Categoría</label>
+          <select id="inputCategoria" class="form-select">
+            <option value="">Seleccione</option>
+            <option value="producto">Productos</option>
+            <option value="maquinaria">Maquinarias</option>
+          </select>
+        </div>
+        <div class="col-md-3 position-relative">
+          <label class="form-label">Producto</label>
+          <input type="text" id="inputProducto" class="form-control" placeholder="Buscar producto..." autocomplete="off">
+          <input type="hidden" id="productoSeleccionado">
+          <ul id="listaProductos" class="list-group position-absolute w-100" style="z-index: 1050; max-height: 150px; overflow-y: auto; display: none;"></ul>
         </div>
         <div class="col-md-3">
+          <label class="form-label">Cantidad</label>
           <input id="inputCantidad" type="number" class="form-control" placeholder="Cantidad" />
         </div>
-        <div class="col-md-2">
+        <div class="col-md-3 d-flex align-items-end">
           <button class="btn btn-success w-100" onclick="agregarItem()">Agregar</button>
         </div>
       </div>
+
 
       <div class="table-section">
         <table class="table table-bordered mt-3 text-center">
           <thead class="table-light">
             <tr>
+              <th>Categoria</th>
               <th>Producto</th>
               <th>Cantidad</th>
               <th>Acciones</th>
@@ -204,19 +236,51 @@
 
     function agregarItem() {
       event.preventDefault();
-      const producto = document.getElementById('inputProducto').value.trim();
+
+      const categoria = document.getElementById('inputCategoria').value;
+      const productoId = document.getElementById('productoSeleccionado').value;
+      const productoNombre = document.getElementById('inputProducto').value.trim();
       const cantidad = parseInt(document.getElementById('inputCantidad').value.trim());
 
-      if (!producto || isNaN(cantidad)) {
-        alert("Completa todos los campos del producto");
+      if (!categoria) {
+        alert("Selecciona una categoría.");
         return;
       }
 
-      items.push({ producto, cantidad });
+      if (!productoId || productoNombre === "") {
+        alert("Debes seleccionar un producto válido desde la lista desplegable.");
+        return;
+      }
+
+      if (isNaN(cantidad) || cantidad <= 0) {
+        alert("Ingresa una cantidad válida.");
+        return;
+      }
+
+      // ✅ Validación para evitar duplicados por productoId
+      const existe = items.some(item =>
+        item.productoId === parseInt(productoId) && item.categoria === categoria
+      );
+
+      if (existe) {
+        alert("Este producto ya fue agregado a la orden.");
+        return;
+      }
+
+      items.push({
+        categoria,
+        productoId: parseInt(productoId),
+        nombre: productoNombre,
+        cantidad
+      });
+
       actualizarTabla();
       document.getElementById('inputProducto').value = '';
+      document.getElementById('productoSeleccionado').value = '';
       document.getElementById('inputCantidad').value = '';
     }
+
+
 
     function actualizarTabla() {
       const tbody = document.getElementById('tablaItems');
@@ -224,13 +288,17 @@
       items.forEach((item, index) => {
         const fila = document.createElement('tr');
         fila.innerHTML = `
-          <td>${item.producto}</td>
+          <td>${item.categoria.charAt(0).toUpperCase() + item.categoria.slice(1)}</td>
+          <td>${item.nombre}</td>
           <td>${item.cantidad}</td>
           <td><button class="btn btn-danger btn-sm" onclick="eliminarItem(${index})">Eliminar</button></td>
         `;
         tbody.appendChild(fila);
       });
     }
+
+
+
 
 
     function eliminarItem(index) {
@@ -258,6 +326,31 @@
         return;
       }
 
+      // ✅ Validación de stock máximo por producto/maquinaria
+      for (const item of items) {
+        let registro;
+
+        if (item.categoria === 'producto') {
+          registro = obtenerProductos().find(p => p.id === item.productoId);
+        } else if (item.categoria === 'maquinaria') {
+          registro = obtenerMaquinarias().find(m => m.id === item.productoId);
+        }
+
+        if (!registro) {
+          alert(`El item con ID ${item.productoId} no se encontró en el sistema.`);
+          return;
+        }
+
+        const stockActual = registro.stock || 0;
+        const stockMaximo = registro.stockMax || 0;
+
+        if ((stockActual + item.cantidad) > stockMaximo) {
+          alert(`⚠️ No se puede generar la orden:\nEl item "${item.nombre}" supera su stock máximo (${stockMaximo}).\nStock actual: ${stockActual} + pedido: ${item.cantidad}`);
+          return;
+        }
+      }
+
+      // ✅ Si todo está correcto, guardamos
       agregarOrdenCompra({
         proveedorId: parseInt(proveedorId),
         proveedorNombre: proveedorTexto,
@@ -272,14 +365,8 @@
 
 
 
+
     let proveedoresDisponibles = [];
-
-    window.addEventListener('DOMContentLoaded', () => {
-      proveedoresDisponibles = JSON.parse(localStorage.getItem('proveedores')) || [];
-      const hoy = new Date().toISOString().split('T')[0];
-      document.getElementById("inputFecha").value = hoy;
-    });
-
 
     const inputProveedor = document.getElementById("inputProveedor");
     const lista = document.getElementById("listaProveedores");
@@ -288,6 +375,7 @@
     inputProveedor.addEventListener("input", () => {
       const texto = inputProveedor.value.toLowerCase();
       lista.innerHTML = "";
+
       if (texto.length === 0) {
         lista.style.display = "none";
         hiddenId.value = "";
@@ -319,12 +407,6 @@
       lista.style.display = "block";
     });
 
-    document.addEventListener("click", (e) => {
-      if (!lista.contains(e.target) && e.target !== inputProveedor) {
-        lista.style.display = "none";
-      }
-    });
-    
     inputProveedor.addEventListener("blur", () => {
       const texto = inputProveedor.value.trim();
       const seleccionado = proveedoresDisponibles.find(p => `${p.nombre} (${p.rut})` === texto);
@@ -335,10 +417,133 @@
       }
     });
 
+    document.addEventListener("click", (e) => {
+      if (!lista.contains(e.target) && e.target !== inputProveedor) {
+        lista.style.display = "none";
+      }
+    });
+
+
+    window.addEventListener('DOMContentLoaded', () => {
+      proveedoresDisponibles = JSON.parse(localStorage.getItem('proveedores')) || [];
+      const hoy = new Date().toISOString().split('T')[0];
+      document.getElementById("inputFecha").value = hoy;
+
+      // AHORA sí: obtenemos referencias al DOM
+      const inputCategoria = document.getElementById("inputCategoria");
+      const inputProducto = document.getElementById("inputProducto");
+      const listaProductos = document.getElementById("listaProductos");
+      const productoSeleccionado = document.getElementById("productoSeleccionado");
+
+      let productosDisponibles = [];
+
+      inputCategoria.addEventListener("change", () => {
+        inputProducto.value = "";
+        productoSeleccionado.value = "";
+        listaProductos.innerHTML = "";
+        listaProductos.style.display = "none";
+
+        const categoria = inputCategoria.value;
+
+        if (categoria === "producto") {
+          productosDisponibles = obtenerProductos();
+        } else if (categoria === "maquinaria") {
+          productosDisponibles = obtenerMaquinarias();
+        } else {
+          productosDisponibles = [];
+        }
+      });
+
+      inputProducto.addEventListener("input", () => {
+        const texto = inputProducto.value.toLowerCase();
+        listaProductos.innerHTML = "";
+
+        if (texto.length === 0) {
+          listaProductos.style.display = "none";
+          productoSeleccionado.value = "";
+          return;
+        }
+
+        const coincidencias = productosDisponibles.filter(p =>
+          p.nombre.toLowerCase().includes(texto)
+        );
+
+        if (coincidencias.length === 0) {
+          listaProductos.style.display = "none";
+          productoSeleccionado.value = "";
+          return;
+        }
+
+        coincidencias.forEach(p => {
+          const item = document.createElement("li");
+          item.classList.add("list-group-item", "list-group-item-action");
+          item.textContent = p.nombre;
+          item.addEventListener("click", () => {
+            inputProducto.value = p.nombre;
+            productoSeleccionado.value = p.id;
+            listaProductos.style.display = "none";
+          });
+          listaProductos.appendChild(item);
+        });
+
+        listaProductos.style.display = "block";
+      });
+
+      inputProducto.addEventListener("blur", () => {
+        const texto = inputProducto.value.trim();
+        const encontrado = productosDisponibles.find(p => p.nombre === texto);
+
+        if (!encontrado) {
+          inputProducto.value = "";
+          productoSeleccionado.value = "";
+        }
+      });
+
+      document.addEventListener("click", (e) => {
+        if (!listaProductos.contains(e.target) && e.target !== inputProducto) {
+          listaProductos.style.display = "none";
+        }
+      });
+    }); 
+
 
   </script>
 
-  <script src="ordenCompraService.js"></script>
+  <script>
+  const usuario = JSON.parse(localStorage.getItem("usuarioActivo"));
+
+  if (!usuario || !usuario.rol) {
+    alert("No hay sesión iniciada o el usuario no tiene rol definido.");
+    window.location.href = "login.html";
+  }
+
+  // Accesos por rol
+  const accesosPorRol = {
+    administrador: ["inventario", "movimientos", "reportes", "kits", "historial", "compras", "configuracion"],
+    bodeguero: ["inventario", "movimientos", "kits", "historial"],
+    comprador: ["compras"],
+    gestorInventario: ["inventario", "movimientos", "kits", "historial"],
+    encargadoLogistica: ["inventario", "movimientos", "historial"],
+    jefeProduccion: ["inventario", "kits"],
+    auditorInventario: ["inventario", "reportes", "historial"],
+    gerenteProyectos: ["reportes"],
+    trabajadorPlanta: []
+  };
+
+  const rol = usuario.rol;
+
+  const accesosPermitidos = accesosPorRol[rol] || [];
+
+  const secciones = ["inventario", "movimientos", "reportes", "kits", "historial", "compras", "configuracion"];
+
+  secciones.forEach(seccion => {
+    const elemento = document.getElementById(`sidebar-${seccion}`);
+    if (elemento && !accesosPermitidos.includes(seccion)) {
+      elemento.style.display = "none";
+    }
+  });
+</script>
+
 
 </body>
 </html>

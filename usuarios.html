@@ -208,15 +208,30 @@
 
   <button class="hamburger-btn" onclick="toggleSidebar()">☰</button>
 
+  <!-- Sidebar -->
   <div id="sidebar" class="sidebar collapsed">
     <a href="index.html"><img src="https://img.icons8.com/ios-filled/24/000000/web.png" /><span class="label">Dashboard</span></a>
-    <a href="inventario.html"><img src="https://img.icons8.com/ios-filled/24/000000/box.png" /><span class="label">Inventario</span></a>
-    <a href="movimientos.html"><img src="https://img.icons8.com/ios-filled/24/000000/refresh.png" /><span class="label">Movimientos</span></a>
-    <a href="reportes.html"><img src="https://img.icons8.com/ios-filled/24/000000/document.png" /><span class="label">Reportes</span></a>
-    <a href="kits.html"><img src="https://img.icons8.com/ios-filled/24/000000/package.png" /><span class="label">Kits / Conjuntos</span></a>
-    <a href="historial.html"><img src="https://img.icons8.com/ios-filled/24/000000/time-machine.png" /><span class="label">Historial</span></a>
-    <a href="configuracion.html"><img src="https://img.icons8.com/ios-filled/24/000000/settings.png" /><span class="label">Configuración</span></a>
-    <a href="compras.html"><img src="https://img.icons8.com/ios-filled/24/000000/shop.png" /><span class="label">Compras</span></a>
+    <div id="sidebar-inventario">
+      <a href="inventario.html"><img src="https://img.icons8.com/ios-filled/24/000000/box.png" /><span class="label">Inventario</span></a>
+    </div>
+    <div id="sidebar-movimientos">
+      <a href="movimientos.html"><img src="https://img.icons8.com/ios-filled/24/000000/refresh.png" /><span class="label">Movimientos</span></a>
+    </div>
+    <div id="sidebar-reportes">
+      <a href="reportes.html"><img src="https://img.icons8.com/ios-filled/24/000000/document.png" /><span class="label">Reportes</span></a>
+    </div>
+    <div id="sidebar-kits">
+      <a href="kits.html"><img src="https://img.icons8.com/ios-filled/24/000000/package.png" /><span class="label">Kits / Conjuntos</span></a>
+    </div>
+    <div id="sidebar-historial">
+      <a href="historial.html"><img src="https://img.icons8.com/ios-filled/24/000000/time-machine.png" /><span class="label">Historial</span></a>
+    </div>
+    <div id="sidebar-compras">
+      <a href="compras.html"><img src="https://img.icons8.com/ios-filled/24/000000/shop.png" /><span class="label">Compras</span></a>
+    </div>
+    <div id="sidebar-configuracion">
+      <a href="configuracion.html"><img src="https://img.icons8.com/ios-filled/24/000000/settings.png" /><span class="label">Configuración</span></a>
+    </div>
     <a href="login.html"><img src="https://img.icons8.com/ios-filled/24/000000/logout-rounded-left.png" /><span class="label">Cerrar sesión</span></a>
   </div>
 
@@ -263,6 +278,14 @@
                 <option value="administrador">Administrador</option>
                 <option value="bodeguero">Bodeguero</option>
                 <option value="comprador">Comprador</option>
+                <option value="gestorInventario">Gestor de Inventario</option>
+                <option value="encargadoLogistica">Encargado de Logistica</option>
+                <option value="jefeProduccion">Jefe de Produccion</option>
+                <option value="auditorInventario">Auditor de Inventario</option>
+                <option value="gerenteProyectos">Gerente de Proyectos</option>
+                <option value="trabajadorPlanta">Trabajador de Planta</option>
+
+
             </select>
             <input type="password" class="form-control mb-2" placeholder="Contraseña" id="contrasena" required />
           </div>
