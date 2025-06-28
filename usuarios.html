@@ -287,5 +287,15 @@
     <script src="storageService.js"></script>
     <script src="usuarios.js"></script>
 
+  <script>
+  const usuarioActivo = JSON.parse(localStorage.getItem('usuarioActivo'));
+
+  if (!usuarioActivo || usuarioActivo.rol !== 'administrador') {
+    alert('Acceso denegado. Solo administradores pueden acceder a esta página.');
+    window.location.href = 'index.html'; // Redirige a una página pública
+  }
+  </script>
+
+
 </body>
 </html>

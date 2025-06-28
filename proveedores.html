@@ -154,26 +154,15 @@
               <th>ID</th>
               <th>Nombre</th>
               <th>Razón Social</th>
+              <th>RUT</th>
               <th>Teléfono</th>
               <th>Correo</th>
               <th>Dirección</th>
               <th>Acciones</th>
             </tr>
           </thead>
-          <tbody id="tablaProveedores">
-            <tr>
-              <td>1</td>
-              <td>Proveedora del Norte</td>
-              <td>Proveedora del Norte Ltda.</td>
-              <td>+56 9 1234 5678</td>
-              <td>contacto@pnorte.cl</td>
-              <td>Copiapó 123</td>
-              <td>
-                <button class="btn btn-sm btn-primary">Editar</button>
-                <button class="btn btn-sm btn-danger">Eliminar</button>
-              </td>
-            </tr>
-          </tbody>
+            <tbody id="tablaProveedores">
+            </tbody>
         </table>
       </div>
     </div>
@@ -197,6 +186,10 @@
               <div class="col-md-6">
                 <label class="form-label">Razón Social</label>
                 <input id="inputRazon" type="text" class="form-control" required />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">RUT</label>
+                <input id="inputRut" type="text" class="form-control" required />
               </div>
               <div class="col-md-6">
                 <label class="form-label">Teléfono</label>
@@ -223,6 +216,7 @@
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="proveedorService.js"></script>
 
   <!-- Script Sidebar -->
   <script>
@@ -232,46 +226,121 @@
     }
   </script>
 
-  <!-- Script para agregar proveedor -->
   <script>
-    let contadorID = 2;
+    let proveedorEditandoId = null;
+
     const form = document.querySelector('#modalProveedor form');
     const tabla = document.getElementById('tablaProveedores');
 
+    // Cargar proveedores desde localStorage al iniciar
+    document.addEventListener('DOMContentLoaded', () => {
+      const proveedores = obtenerProveedores();
+      proveedores.forEach(p => agregarFilaProveedor(p));
+    });
+
+    // Manejar envío del formulario (crear o editar)
     form.addEventListener('submit', function (e) {
       e.preventDefault();
 
       const nombre = document.getElementById('inputNombre').value.trim();
       const razon = document.getElementById('inputRazon').value.trim();
+      const rut = document.getElementById('inputRut').value.trim();
       const telefono = document.getElementById('inputTelefono').value.trim();
       const correo = document.getElementById('inputCorreo').value.trim();
       const direccion = document.getElementById('inputDireccion').value.trim();
 
-      if (!nombre || !razon || !telefono || !correo || !direccion) {
+      if (!nombre || !razon || !rut || !telefono || !correo || !direccion) {
         alert('Por favor, completa todos los campos');
         return;
       }
 
+      const proveedores = obtenerProveedores();
+
+      if (proveedorEditandoId) {
+        // Modo edición
+        const proveedor = proveedores.find(p => p.id === proveedorEditandoId);
+        if (proveedor) {
+          proveedor.nombre = nombre;
+          proveedor.razon = razon;
+          proveedor.rut = rut;
+          proveedor.telefono = telefono;
+          proveedor.correo = correo;
+          proveedor.direccion = direccion;
+          guardarProveedores(proveedores);
+        }
+        proveedorEditandoId = null;
+      } else {
+        // Modo creación
+        const nuevoProveedor = {
+          id: proveedores.length ? proveedores[proveedores.length - 1].id + 1 : 1,
+          nombre,
+          razon,
+          rut,
+          telefono,
+          correo,
+          direccion
+        };
+        proveedores.push(nuevoProveedor);
+        guardarProveedores(proveedores);
+      }
+
+      form.reset();
+      bootstrap.Modal.getInstance(document.getElementById('modalProveedor')).hide();
+      recargarTabla();
+    });
+
+    function agregarFilaProveedor(p) {
       const fila = document.createElement('tr');
       fila.innerHTML = `
-        <td>${contadorID++}</td>
-        <td>${nombre}</td>
-        <td>${razon}</td>
-        <td>${telefono}</td>
-        <td>${correo}</td>
-        <td>${direccion}</td>
+        <td>${p.id}</td>
+        <td>${p.nombre}</td>
+        <td>${p.razon}</td>
+        <td>${p.rut}</td>
+        <td>${p.telefono}</td>
+        <td>${p.correo}</td>
+        <td>${p.direccion}</td>
         <td>
-          <button class="btn btn-sm btn-primary">Editar</button>
+          <button class="btn btn-sm btn-primary me-1">Editar</button>
           <button class="btn btn-sm btn-danger">Eliminar</button>
         </td>
       `;
 
-      tabla.appendChild(fila);
-      form.reset();
+      fila.querySelector('.btn-primary').addEventListener('click', () => {
+        proveedorEditandoId = p.id;
+        document.getElementById('inputNombre').value = p.nombre;
+        document.getElementById('inputRazon').value = p.razon;
+        document.getElementById('inputRut').value = p.rut;
+        document.getElementById('inputTelefono').value = p.telefono;
+        document.getElementById('inputCorreo').value = p.correo;
+        document.getElementById('inputDireccion').value = p.direccion;
+        const modal = new bootstrap.Modal(document.getElementById('modalProveedor'));
+        modal.show();
+      });
 
-      const modal = bootstrap.Modal.getInstance(document.getElementById('modalProveedor'));
-      modal.hide();
-    });
+      fila.querySelector('.btn-danger').addEventListener('click', () => {
+        if (confirm("¿Estás seguro de eliminar este proveedor?")) {
+          const nuevos = obtenerProveedores().filter(x => x.id !== p.id);
+          guardarProveedores(nuevos);
+          recargarTabla();
+        }
+      });
+
+      tabla.appendChild(fila);
+    }
+
+    function recargarTabla() {
+      tabla.innerHTML = "";
+      const proveedores = obtenerProveedores();
+      proveedores.forEach(p => agregarFilaProveedor(p));
+    }
+
+    function obtenerProveedores() {
+      return JSON.parse(localStorage.getItem("proveedores")) || [];
+    }
+
+    function guardarProveedores(lista) {
+      localStorage.setItem("proveedores", JSON.stringify(lista));
+    }
   </script>
 
 </body>

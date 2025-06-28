@@ -127,7 +127,7 @@
       );
 
       if (usuarioValido) {
-        localStorage.setItem('usuarioActual', JSON.stringify(usuarioValido)); // útil para próximas páginas
+        localStorage.setItem('usuarioActivo', JSON.stringify(usuarioValido)); // útil para próximas páginas
         window.location.href = 'index.html';
       } else {
         alert('Usuario o contraseña incorrectos.');
