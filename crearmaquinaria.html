@@ -132,12 +132,10 @@
 </head>
 <body>
 
-  <!-- Barra superior -->
   <div class="topbar">
     <img src="src/logo.jpeg" alt="Logo" />
   </div>
 
-  <!-- Botón hamburguesa -->
   <button class="hamburger-btn" onclick="toggleSidebar()">☰</button>
 
   <div id="sidebar" class="sidebar collapsed">
@@ -152,19 +150,35 @@
     <a href="login.html"><img src="https://img.icons8.com/ios-filled/24/000000/logout-rounded-left.png" /><span class="label">Cerrar sesión</span></a>
   </div>
 
-  <!-- Contenido principal -->
   <div class="main-content">
-    <!--AQUI DENTRO VA EL CODIGO-->
+    <div class="d-flex justify-content-center">
+      <div class="card p-4" style="max-width: 600px; width: 100%;">
+        <h5 class="mb-3 text-center">Agregar Maquinaria</h5>
+        <form id="formCrearMaquinaria">
+          <div class="row mb-2">
+            <div class="col-md-4">
+              <label for="nombre" class="form-label">Nombre</label>
+              <input type="text" class="form-control form-control-sm" id="nombre" placeholder="Ej: Excavadora CAT">
+            </div>
+            <div class="col-md-4">
+              <label for="modelo" class="form-label">Modelo</label>
+              <input type="text" class="form-control form-control-sm" id="modelo" placeholder="Ej: 320D2 GC">
+            </div>
+            <div class="col-md-4">
+              <label for="marca" class="form-label">Marca</label>
+              <input type="text" class="form-control form-control-sm" id="marca" placeholder="Ej: Caterpillar">
+            </div>
+          </div>
+
+          <div class="text-end mt-3">
+            <button type="reset" class="btn btn-outline-secondary btn-sm">Limpiar</button>
+            <button type="submit" class="btn btn-success btn-sm">Agregar maquinaria</button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 
-  <!-- JS: Fecha actual -->
-  <script>
-    document.getElementById('fecha').textContent = new Date().toLocaleDateString('es-CL', {
-      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-    });
-  </script>
-
-  <!-- JS: Sidebar toggle -->
   <script>
     function toggleSidebar() {
       const sidebar = document.getElementById("sidebar");
@@ -173,91 +187,24 @@
       main.style.marginLeft = sidebar.classList.contains("collapsed") ? "60px" : "220px";
     }
 
- // Si usas localStorage para simular el backend:
- document.getElementById("formCrearMaquinaria").addEventListener("submit", function (e) {
+    document.getElementById("formCrearMaquinaria").addEventListener("submit", function (e) {
       e.preventDefault();
 
+      const maquinarias = JSON.parse(localStorage.getItem("maquinarias") || "[]");
+      const nuevoId = maquinarias.length > 0 ? maquinarias[maquinarias.length - 1].id + 1 : 1;
+
       const nuevaMaquinaria = {
+        id: nuevoId,
         nombre: document.getElementById("nombre").value,
         modelo: document.getElementById("modelo").value,
-        stock: parseInt(document.getElementById("stock").value),
-        proveedor: document.getElementById("proveedor").value,
-        ubicacion: document.getElementById("ubicacion").value
+        marca: document.getElementById("marca").value,
+        stock: 0
       };
 
-      // Guardar en localStorage
-      const maquinariaGuardada = JSON.parse(localStorage.getItem("maquinarias") || "[]");
-      maquinariaGuardada.push(nuevaMaquinaria);
-      localStorage.setItem("maquinarias", JSON.stringify(maquinariaGuardada));
-
-      // Redirigir a la vista de inventario
+      maquinarias.push(nuevaMaquinaria);
+      localStorage.setItem("maquinarias", JSON.stringify(maquinarias));
       window.location.href = "inventario.html";
     });
-    
   </script>
-
-<div class="d-flex justify-content-center">
-  <div class="card p-4" style="max-width: 600px; width: 100%;">
-    <h5 class="mb-3 text-center">Agregar Maquinaria</h5>
-    <form>
-      <div class="row mb-2">
-        <div class="col-md-4">
-          <label for="id" class="form-label">ID</label>
-          <input type="text" class="form-control form-control-sm" id="id" placeholder="Ej: MCH-001">
-        </div>
-        <div class="col-md-4">
-          <label for="nombre" class="form-label">Nombre</label>
-          <input type="text" class="form-control form-control-sm" id="nombre" placeholder="Ej: Excavadora CAT">
-        </div>
-        <div class="col-md-4">
-          <label for="modelo" class="form-label">Modelo</label>
-          <input type="text" class="form-control form-control-sm" id="modelo" placeholder="Ej: 320D2 GC">
-        </div>
-      </div>
-
-      <div class="row mb-2">
-        <div class="col-md-4">
-          <label for="stock" class="form-label">Stock</label>
-          <input type="number" class="form-control form-control-sm" id="stock" min="0" placeholder="Ej: 3">
-        </div>
-        <div class="col-md-4">
-          <label for="proveedor" class="form-label">Proveedor</label>
-          <input type="text" class="form-control form-control-sm" id="proveedor" placeholder="Ej: Komatsu Chile">
-        </div>
-        <div class="col-md-4">
-          <label for="ubicacion" class="form-label">Ubicación</label>
-          <input type="text" class="form-control form-control-sm" id="ubicacion" placeholder="Ej: Bodega Norte">
-        </div>
-      </div>
-
-      <div class="text-end mt-3">
-        <button type="reset" class="btn btn-outline-secondary btn-sm">Limpiar</button>
-        <button type="submit" class="btn btn-success btn-sm">Agregar maquinaria</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<script>
-  document.querySelector("form").addEventListener("submit", function (e) {
-    e.preventDefault();
-
-    const nuevaMaquinaria = {
-      id: Date.now(),
-      nombre: document.getElementById("nombre").value,
-      modelo: document.getElementById("modelo").value,
-      stock: parseInt(document.getElementById("stock").value),
-      proveedor: document.getElementById("proveedor").value,
-      ubicacion: document.getElementById("ubicacion").value
-    };
-
-    const maquinarias = JSON.parse(localStorage.getItem("maquinarias") || "[]");
-    maquinarias.push(nuevaMaquinaria);
-    localStorage.setItem("maquinarias", JSON.stringify(maquinarias));
-
-    window.location.href = "inventario.html";
-  });
-</script>
-
 </body>
 </html>
