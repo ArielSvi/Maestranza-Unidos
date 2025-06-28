@@ -153,7 +153,6 @@
             <tr>
               <th>ID</th>
               <th>Nombre</th>
-              <th>Razón Social</th>
               <th>RUT</th>
               <th>Teléfono</th>
               <th>Correo</th>
@@ -182,10 +181,6 @@
               <div class="col-md-6">
                 <label class="form-label">Nombre</label>
                 <input id="inputNombre" type="text" class="form-control" required />
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Razón Social</label>
-                <input id="inputRazon" type="text" class="form-control" required />
               </div>
               <div class="col-md-6">
                 <label class="form-label">RUT</label>
@@ -243,13 +238,12 @@
       e.preventDefault();
 
       const nombre = document.getElementById('inputNombre').value.trim();
-      const razon = document.getElementById('inputRazon').value.trim();
       const rut = document.getElementById('inputRut').value.trim();
       const telefono = document.getElementById('inputTelefono').value.trim();
       const correo = document.getElementById('inputCorreo').value.trim();
       const direccion = document.getElementById('inputDireccion').value.trim();
 
-      if (!nombre || !razon || !rut || !telefono || !correo || !direccion) {
+      if (!nombre || !rut || !telefono || !correo || !direccion) {
         alert('Por favor, completa todos los campos');
         return;
       }
@@ -261,7 +255,6 @@
         const proveedor = proveedores.find(p => p.id === proveedorEditandoId);
         if (proveedor) {
           proveedor.nombre = nombre;
-          proveedor.razon = razon;
           proveedor.rut = rut;
           proveedor.telefono = telefono;
           proveedor.correo = correo;
@@ -274,7 +267,6 @@
         const nuevoProveedor = {
           id: proveedores.length ? proveedores[proveedores.length - 1].id + 1 : 1,
           nombre,
-          razon,
           rut,
           telefono,
           correo,
@@ -294,7 +286,6 @@
       fila.innerHTML = `
         <td>${p.id}</td>
         <td>${p.nombre}</td>
-        <td>${p.razon}</td>
         <td>${p.rut}</td>
         <td>${p.telefono}</td>
         <td>${p.correo}</td>
@@ -308,7 +299,6 @@
       fila.querySelector('.btn-primary').addEventListener('click', () => {
         proveedorEditandoId = p.id;
         document.getElementById('inputNombre').value = p.nombre;
-        document.getElementById('inputRazon').value = p.razon;
         document.getElementById('inputRut').value = p.rut;
         document.getElementById('inputTelefono').value = p.telefono;
         document.getElementById('inputCorreo').value = p.correo;
