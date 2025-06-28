@@ -65,6 +65,10 @@
       <button class="btn btn-outline-primary" id="btnMaquinaria">Maquinaria</button>
       <button class="btn btn-outline-success" id="btnProductos">Productos</button>
     </div>
+    <div class="input-group mt-3">
+      <input type="text" class="form-control" id="filtroInventario" placeholder="Buscar por categoría o etiqueta">
+      <button class="btn btn-outline-secondary" onclick="filtrarInventario()">Buscar</button>
+    </div>
   </div>
 
   <div id="tablaMaquinaria" class="d-none">
@@ -77,7 +81,14 @@
         <table class="table table-bordered text-center">
           <thead class="table-primary">
             <tr>
-              <th>ID</th><th>Nombre</th><th>Modelo</th><th>Marca</th><th>Stock</th><th>Acciones</th>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Modelo</th>
+              <th>Marca</th>
+              <th>Categoría</th>
+              <th>Etiquetas</th>
+              <th>Stock</th>
+              <th>Acciones</th>
             </tr>
           </thead>
           <tbody id="tbodyMaquinaria"></tbody>
@@ -96,7 +107,14 @@
         <table class="table table-bordered text-center">
           <thead class="table-success">
             <tr>
-              <th>ID</th><th>Nombre</th><th>Modelo</th><th>Marca</th><th>Stock</th><th>Acciones</th>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Modelo</th>
+              <th>Marca</th>
+              <th>Categoría</th>
+              <th>Etiquetas</th>
+              <th>Stock</th>
+              <th>Acciones</th>
             </tr>
           </thead>
           <tbody id="tbodyProductos"></tbody>
@@ -133,6 +151,8 @@ function cargarTabla(tipo){
       <td>${d.nombre}</td>
       <td>${d.modelo}</td>
       <td>${d.marca}</td>
+      <td>${d.categoria || ''}</td>
+      <td>${(d.etiquetas || []).join(', ')}</td>
       <td>${d.stock}</td>
       <td>
         <button class="btn btn-sm btn-danger" onclick="eliminarItem('${tipo}',${i})">Eliminar</button>
@@ -149,6 +169,34 @@ function eliminarItem(tipo, index){
     localStorage.setItem(tipo+'s', JSON.stringify(items));
     cargarTabla(tipo);
   }
+}
+
+function filtrarInventario() {
+  const query = document.getElementById('filtroInventario').value.toLowerCase();
+
+  ['producto', 'maquinaria'].forEach(tipo => {
+    const items = JSON.parse(localStorage.getItem(tipo + 's')) || [];
+    const filtrados = items.filter(p =>
+      (p.categoria && p.categoria.toLowerCase().includes(query)) ||
+      (p.etiquetas && p.etiquetas.some(e => e.toLowerCase().includes(query)))
+    );
+    let html = '';
+    filtrados.forEach((d,i)=>{
+      html+=`<tr>
+        <td>${d.id}</td>
+        <td>${d.nombre}</td>
+        <td>${d.modelo}</td>
+        <td>${d.marca}</td>
+        <td>${d.categoria || ''}</td>
+        <td>${(d.etiquetas || []).join(', ')}</td>
+        <td>${d.stock}</td>
+        <td>
+          <button class="btn btn-sm btn-danger" onclick="eliminarItem('${tipo}',${i})">Eliminar</button>
+        </td>
+      </tr>`;
+    });
+    document.getElementById('tbody'+(tipo==='maquinaria'?'Maquinaria':'Productos')).innerHTML = html;
+  });
 }
 </script>
 </body>
