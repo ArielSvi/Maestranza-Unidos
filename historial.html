@@ -123,12 +123,13 @@
   </div>
 
   <div class="main-content">
-    <div class="d-flex justify-content-between flex-wrap mb-4">
-      <div class="bg-light p-3 rounded text-center flex-fill me-2">
+    
+    <div class="d-flex flex-wrap mb-4">
+      <div class="bg-light p-3 rounded position-relative flex-fill me-2 text-center">
         <strong>HISTORIAL DE MOVIMIENTOS</strong>
-      </div>
-      <div class="bg-light p-3 rounded text-center flex-fill ms-2">
-        <button class="btn btn-danger" onclick="limpiarHistorial()">🗑 Limpiar Historial</button>
+        <a href="informe.html" class="btn btn-primary position-absolute end-0 top-50 translate-middle-y me-3">
+          Generar Informe
+        </a>
       </div>
     </div>
 
@@ -190,12 +191,14 @@ function cargarHistorial() {
   });
 }
 
+/*
 function limpiarHistorial() {
   if (confirm("¿Estás seguro de borrar todo el historial?")) {
     localStorage.removeItem('historial');
     cargarHistorial();
   }
 }
+*/
 </script>
 
 <script>
