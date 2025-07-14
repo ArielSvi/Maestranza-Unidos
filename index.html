@@ -304,7 +304,12 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <ul id="listaCriticos" class="list-group list-group-flush"></ul>
+        <p class="fw-bold mb-1 text-danger">🛑 Stock Crítico:</p>
+        <ul id="listaCriticos" class="list-group list-group-flush mb-3"></ul>
+
+        <p class="fw-bold mb-1 text-warning">⚠️ Stock Bajo:</p>
+        <ul id="listaBajos" class="list-group list-group-flush"></ul>
+
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -350,48 +355,54 @@
 
 
 <script>
-  if (rolesConAlertaStock.includes(rol)) {
-    const productos = JSON.parse(localStorage.getItem("productos")) || [];
-    const tablaBody = document.querySelector("tbody");
-    const listaCriticos = document.getElementById("listaCriticos");
-    let hayCriticos = false;
+if (rolesConAlertaStock.includes(rol)) {
+  const productos = JSON.parse(localStorage.getItem("productos")) || [];
+  const tablaBody = document.querySelector("tbody");
+  const listaCriticos = document.getElementById("listaCriticos");
+  const listaBajos = document.getElementById("listaBajos");
+  let hayCriticos = false;
 
-    tablaBody.innerHTML = ""; // limpiar tabla
-    listaCriticos.innerHTML = ""; // limpiar lista del modal
+  tablaBody.innerHTML = "";
+  listaCriticos.innerHTML = "";
+  listaBajos.innerHTML = "";
 
-    productos.forEach(prod => {
-      const porcentaje = (prod.stock / prod.stockMax) * 100;
-      let clase = "";
+  productos.forEach(prod => {
+    const porcentaje = (prod.stock / prod.stockMax) * 100;
+    let clase = "";
 
-      if (porcentaje <= 20) {
-        clase = "stock-critical";
-        hayCriticos = true;
+    if (porcentaje <= 20) {
+      clase = "stock-critical";
+      hayCriticos = true;
 
-        // Agregar al modal
-        const item = document.createElement("li");
-        item.className = "list-group-item";
-        item.textContent = `${prod.nombre}: ${prod.stock} unidades`;
-        listaCriticos.appendChild(item);
-      } else if (porcentaje <= 40) {
-        clase = "stock-low";
-      }
+      const item = document.createElement("li");
+      item.className = "list-group-item";
+      item.textContent = `${prod.nombre}: ${prod.stock} unidades`;
+      listaCriticos.appendChild(item);
+    } else if (porcentaje <= 50) {
+      clase = "stock-low";
 
-      if (clase) {
-        const fila = document.createElement("tr");
-        fila.innerHTML = `
-          <td>${prod.nombre}</td>
-          <td class="${clase}">${prod.stock}</td>
-        `;
-        tablaBody.appendChild(fila);
-      }
-    });
-
-    // Mostrar el modal si hay productos críticos
-    if (hayCriticos) {
-      const modal = new bootstrap.Modal(document.getElementById("modalStockCritico"));
-      modal.show();
+      const item = document.createElement("li");
+      item.className = "list-group-item";
+      item.textContent = `${prod.nombre}: ${prod.stock} unidades`;
+      listaBajos.appendChild(item);
     }
+
+    if (clase) {
+      const fila = document.createElement("tr");
+      fila.innerHTML = `
+        <td>${prod.nombre}</td>
+        <td class="${clase}">${prod.stock}</td>
+      `;
+      tablaBody.appendChild(fila);
+    }
+  });
+
+  if (hayCriticos) {
+    const modal = new bootstrap.Modal(document.getElementById("modalStockCritico"));
+    modal.show();
   }
+}
+
 </script>
 
 
