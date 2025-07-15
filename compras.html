@@ -139,10 +139,12 @@
   </div>
 
     <div class="main-content" style="margin-left: 220px; margin-top: 80px; padding: 20px;">
-      <div class="d-flex justify-content-start">
-        <a href="proveedores.html" class="btn btn-primary me-2">Ir a Proveedores</a>
+      <div class="d-flex justify-content-start gap-2">
+        <a href="proveedores.html" class="btn btn-primary">Ir a Proveedores</a>
         <a href="ordendecompra.html" class="btn btn-success">Generar Orden de Compra</a>
+        <a href="historialprecios.html" class="btn btn-secondary">Historial de Precios</a>
       </div>
+
 
       <hr class="my-4">
 
@@ -155,6 +157,7 @@
               <th>Proveedor</th>
               <th>Fecha</th>
               <th>Detalle de Productos</th>
+              <th>Total Orden</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -194,14 +197,20 @@
 
         // Construir resumen de productos con categoría y cantidad
         const productosDetalle = orden.items.map(item => {
-          return `<div>[${item.categoria}] ${item.nombre} - ${item.cantidad}</div>`;
+          return `<div>[${item.categoria}] ${item.nombre} - ${item.cantidad} unidades x $${item.precioUnitario?.toLocaleString() || "N/A"} = $${(item.precioUnitario * item.cantidad)?.toLocaleString() || "N/A"}</div>`;
         }).join("");
+
+        // Calcular total
+        const totalOrden = orden.items.reduce((total, item) => {
+          return total + ((item.precioUnitario || 0) * (item.cantidad || 0));
+        }, 0);
 
         fila.innerHTML = `
           <td>${index + 1}</td>
           <td>${orden.proveedorNombre}</td>
-          <td>${orden.fecha}</td>
+          <td>${new Date(orden.fecha).toLocaleString("es-CL")}</td>
           <td>${productosDetalle}</td>
+          <td>$${totalOrden.toLocaleString()}</td>
           <td>
             <button class="btn btn-sm btn-info" onclick="verDetalle(${index})">Ver Detalle</button>
           </td>
@@ -218,15 +227,21 @@
     function verDetalle(indice) {
       const orden = obtenerOrdenesCompra()[indice];
       const productos = orden.items.map(item =>
-        `• [${item.categoria}] ${item.nombre} x ${item.cantidad}`
+        `• [${item.categoria}] ${item.nombre} x ${item.cantidad} @ $${item.precioUnitario?.toLocaleString() || "N/A"}`
       ).join('\n');
+
+      const total = orden.items.reduce((sum, item) => {
+        return sum + ((item.precioUnitario || 0) * (item.cantidad || 0));
+      }, 0);
 
       alert(
         `Proveedor: ${orden.proveedorNombre}\n` +
-        `Fecha: ${orden.fecha}\n` +
-        `Productos:\n${productos}`
+        `Fecha: ${new Date(orden.fecha).toLocaleString("es-CL")}\n` +
+        `Productos:\n${productos}\n\n` +
+        `Total de la orden: $${total.toLocaleString()}`
       );
     }
+
   </script>
 
 <script>
