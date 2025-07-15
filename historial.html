@@ -127,10 +127,8 @@
     <div class="d-flex flex-wrap mb-4">
       <div class="bg-light p-3 rounded position-relative flex-fill me-2 text-center">
         <strong>HISTORIAL DE MOVIMIENTOS</strong>
-        <a href="informe.html" class="btn btn-primary position-absolute end-0 top-50 translate-middle-y me-3">
-          Generar Informe
-        </a>
       </div>
+
     </div>
 
         <!-- Filtros actualizados -->
@@ -207,6 +205,13 @@
         </table>
       </div>
     </div>
+    
+    <a href="#" class="btn btn-success me-2 mt-3" onclick="exportarHistorialAExcel()">
+      Exportar Excel
+    </a>
+    <a href="#" class="btn btn-danger me-2 mt-3" onclick="exportarHistorialAPDF()">
+      Exportar PDF
+    </a>
   </div>
 
 <script src="storageService.js"></script>
@@ -309,6 +314,130 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 <script>
+  function exportarHistorialAExcel() {
+  const historial = JSON.parse(localStorage.getItem('historial')) || [];
+
+  if (historial.length === 0) {
+    alert("No hay movimientos para exportar.");
+    return;
+  }
+
+  const filtroInventario = document.getElementById("filtroInventario").value;
+  const filtroTipo = document.getElementById("filtroTipo").value;
+  const filtroUsuario = document.getElementById("filtroUsuario").value;
+  const fechaDesde = document.getElementById("fechaDesde").value;
+  const fechaHasta = document.getElementById("fechaHasta").value;
+
+  const desde = fechaDesde ? new Date(fechaDesde) : null;
+  const hasta = fechaHasta ? new Date(fechaHasta + "T23:59:59") : null;
+
+  const filtrado = historial.filter(item => {
+    const coincideInventario = !filtroInventario || item.inventario === filtroInventario;
+    const coincideTipo = !filtroTipo || item.tipo === filtroTipo;
+    const coincideUsuario = !filtroUsuario || item.usuario === filtroUsuario;
+
+    const fechaItem = new Date(item.fecha);
+    const coincideDesde = !desde || fechaItem >= desde;
+    const coincideHasta = !hasta || fechaItem <= hasta;
+
+    return coincideInventario && coincideTipo && coincideUsuario && coincideDesde && coincideHasta;
+  });
+
+  if (filtrado.length === 0) {
+    alert("No hay movimientos filtrados para exportar.");
+    return;
+  }
+
+  const datos = filtrado.map(item => ({
+    ID: item.id,
+    Tipo: item.tipo,
+    Producto: item.producto || "-",
+    Cantidad: item.cantidad,
+    Origen: item.origen || "-",
+    Destino: item.destino || "-",
+    Fecha: item.fecha,
+    Usuario: item.usuario
+  }));
+
+  const hoja = XLSX.utils.json_to_sheet(datos);
+  const libro = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(libro, hoja, "Historial");
+
+  XLSX.writeFile(libro, "historial.xlsx");
+}
+
+
+function exportarHistorialAPDF() {
+  const historial = JSON.parse(localStorage.getItem('historial')) || [];
+
+  const filtroInventario = document.getElementById("filtroInventario").value;
+  const filtroTipo = document.getElementById("filtroTipo").value;
+  const filtroUsuario = document.getElementById("filtroUsuario").value;
+  const fechaDesde = document.getElementById("fechaDesde").value;
+  const fechaHasta = document.getElementById("fechaHasta").value;
+
+  const desde = fechaDesde ? new Date(fechaDesde) : null;
+  const hasta = fechaHasta ? new Date(fechaHasta + "T23:59:59") : null;
+
+  const filtrado = historial.filter(item => {
+    const coincideInventario = !filtroInventario || item.inventario === filtroInventario;
+    const coincideTipo = !filtroTipo || item.tipo === filtroTipo;
+    const coincideUsuario = !filtroUsuario || item.usuario === filtroUsuario;
+
+    const fechaItem = new Date(item.fecha);
+    const coincideDesde = !desde || fechaItem >= desde;
+    const coincideHasta = !hasta || fechaItem <= hasta;
+
+    return coincideInventario && coincideTipo && coincideUsuario && coincideDesde && coincideHasta;
+  });
+
+  if (filtrado.length === 0) {
+    alert("No hay movimientos filtrados para exportar.");
+    return;
+  }
+
+  const doc = new jspdf.jsPDF();
+
+  // Base64 del logo
+  const logoBase64 = "src/logo.jpg"; // <- reemplaza esto
+
+  // Insertar imagen en la parte superior
+  doc.addImage(logoBase64, "JPEG", 10, 10, 30, 30); // (x, y, width, height)
+  
+  doc.setFontSize(16);
+  doc.text("Historial de Movimientos", 45, 20);
+  
+  const fechaActual = new Date().toLocaleString("es-CL");
+  doc.setFontSize(10);
+  doc.text(`Fecha de exportación: ${fechaActual}`, 45, 27);
+
+  const columnas = ["ID", "Tipo", "Producto", "Cantidad", "Origen", "Destino", "Fecha", "Usuario"];
+  const filas = filtrado.map(item => [
+    item.id,
+    item.tipo,
+    item.producto || "-",
+    item.cantidad,
+    item.origen || "-",
+    item.destino || "-",
+    item.fecha,
+    item.usuario
+  ]);
+
+  doc.autoTable({
+    head: [columnas],
+    body: filas,
+    startY: 45,
+    styles: { fontSize: 8 },
+    headStyles: { fillColor: [0, 191, 255] }
+  });
+
+  doc.save("historial.pdf");
+}
+
+
+</script>
+
+<script>
   const usuario = JSON.parse(localStorage.getItem("usuarioActivo"));
 
   if (!usuario || !usuario.rol) {
@@ -343,6 +472,17 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   
+
+  
 </script>
+
+<!-- Exportar a Excel -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<!-- Exportar a PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+
 </body>
 </html>
