@@ -23,6 +23,11 @@ function generarLoteRecepcion() {
   return `RC-${fecha}-${secuencia}`;
 }
 
+function obtenerKits() {
+  return JSON.parse(localStorage.getItem("kits")) || [];
+}
+
+
 function registrarEntrada({ productoId, cantidad, fechaVencimiento, loteRecepcion, usuario }) {
   const productos = obtenerProductos();
   const producto = productos.find(p => p.id === productoId);
@@ -52,13 +57,15 @@ function registrarEntrada({ productoId, cantidad, fechaVencimiento, loteRecepcio
   historial.push({
     id: Date.now(),
     tipo: "Entrada",
-    productoId,
+    productoId: itemId,
+    producto: `${producto.nombre} (${producto.modelo})`,
+    inventario: "Producto",
     cantidad,
     loteId: entrada.loteId,
     loteRecepcion,
     fecha: new Date().toLocaleString("es-CL"),
     usuario,
-    ubicacion: "Bodega Central",
+    ubicacion: entrada.ubicacion,
     fechaVencimiento
   });
   guardarHistorial(historial);
@@ -91,6 +98,8 @@ function registrarSalidaOptimizada({ productoId, cantidad, destino, usuario }) {
     historial.push({
       id: Date.now(),
       tipo: "Salida",
+      producto: `${producto.nombre} (${producto.modelo})`,
+      inventario: "Producto",
       productoId,
       cantidad: usado,
       loteId: entrada.loteId,
@@ -175,6 +184,8 @@ document.addEventListener("DOMContentLoaded", () => {
         historial.push({
           id: Date.now(),
           tipo: "Entrada",
+          producto: `${producto.nombre} (${producto.modelo})`,
+          inventario: "Producto",
           productoId: itemId,
           cantidad,
           loteId: entrada.loteId,
@@ -199,6 +210,8 @@ document.addEventListener("DOMContentLoaded", () => {
           id: Date.now(),
           tipo: "Entrada",
           maquinariaId: itemId,
+          producto: `${maquinaria.nombre} (${maquinaria.modelo})`,
+          inventario: "Maquinaria",
           cantidad,
           loteId: entrada.loteId,
           loteRecepcion,
@@ -225,6 +238,122 @@ document.addEventListener("DOMContentLoaded", () => {
     const cantidad = parseInt(document.getElementById("cantidadSalida").value);
     const destino = document.getElementById("destinoSalida").value;
     const usuario = JSON.parse(localStorage.getItem("usuarioActivo"))?.usuario || "admin";
+
+    if (tipo === "kit") {
+      const kits = obtenerKits();
+      const kit = kits.find(k => k.id === itemId);
+      if (!kit) return alert("Kit no encontrado.");
+
+      // Verificar si hay stock suficiente de todos los componentes
+      const productos = obtenerProductos();
+      const maquinarias = obtenerMaquinarias();
+      const historial = obtenerHistorial();
+      const componentesInsuficientes = [];
+
+      for (const comp of kit.componentes) {
+        const cantidadTotal = comp.cantidad * cantidad;
+        let entradas = [];
+
+        if (comp.tipo === "producto") {
+          const prod = productos.find(p => p.id === comp.id);
+          if (!prod || !prod.entradas || prod.entradas.reduce((s, e) => s + e.cantidad, 0) < cantidadTotal) {
+            componentesInsuficientes.push(comp.nombre);
+          }
+        } else if (comp.tipo === "maquinaria") {
+          const maq = maquinarias.find(m => m.id === comp.id);
+          if (!maq || !maq.entradas || maq.entradas.reduce((s, e) => s + e.cantidad, 0) < cantidadTotal) {
+            componentesInsuficientes.push(comp.nombre);
+          }
+        }
+      }
+
+      if (componentesInsuficientes.length > 0) {
+        alert("No hay stock suficiente de los siguientes componentes:\n" + componentesInsuficientes.join("\n"));
+        return;
+      }
+
+      // Descontar stock de cada componente
+      for (const comp of kit.componentes) {
+        const cantidadTotal = comp.cantidad * cantidad;
+
+        if (comp.tipo === "producto") {
+          const prod = productos.find(p => p.id === comp.id);
+          prod.entradas.sort((a, b) => new Date(a.fechaIngreso) - new Date(b.fechaIngreso));
+          let restante = cantidadTotal;
+
+          for (const entrada of prod.entradas) {
+            if (entrada.ubicacion !== "Bodega Central" || entrada.cantidad === 0) continue;
+
+            const usado = Math.min(restante, entrada.cantidad);
+            entrada.cantidad -= usado;
+            restante -= usado;
+
+            historial.push({
+              id: Date.now(),
+              tipo: "Salida (Kit)",
+              productoId: prod.id,
+              producto: comp.nombre,
+              inventario: "Producto",
+              cantidad: usado,
+              loteId: entrada.loteId,
+              destino,
+              fecha: new Date().toLocaleString("es-CL"),
+              usuario,
+              kitNombre: kit.nombre,
+              kitsEntregados: cantidad
+            });
+
+
+            if (restante === 0) break;
+          }
+
+          prod.stock = prod.entradas.reduce((sum, e) => sum + e.cantidad, 0);
+        }
+
+        if (comp.tipo === "maquinaria") {
+          const maq = maquinarias.find(m => m.id === comp.id);
+          maq.entradas.sort((a, b) => new Date(a.fechaIngreso) - new Date(b.fechaIngreso));
+          let restante = cantidadTotal;
+
+          for (const entrada of maq.entradas) {
+            if (entrada.ubicacion !== "Bodega Central" || entrada.cantidad === 0) continue;
+
+            const usado = Math.min(restante, entrada.cantidad);
+            entrada.cantidad -= usado;
+            restante -= usado;
+
+            historial.push({
+              id: Date.now(),
+              tipo: "Salida (Kit)",
+              maquinariaId: maq.id,
+              producto: comp.nombre,
+              inventario: "Maquinaria",
+              cantidad: usado,
+              loteId: entrada.loteId,
+              destino,
+              kitNombre: kit.nombre,
+              kitsEntregados: cantidad,
+              fecha: new Date().toLocaleString("es-CL"),
+              usuario
+            });
+
+            if (restante === 0) break;
+          }
+
+          maq.stock = maq.entradas.reduce((sum, e) => sum + e.cantidad, 0);
+        }
+      }
+
+      guardarProductos(productos);
+      guardarMaquinarias(maquinarias);
+      guardarHistorial(historial);
+      alert("Salida de kit registrada correctamente.");
+      formSalida.reset();
+      mostrarStockGlobal();
+      mostrarStockMaquinarias();
+      return;
+    }
+
 
     if (!tipo || !itemId || !cantidad || !destino) {
       alert("Completa todos los campos obligatorios.");
@@ -255,6 +384,8 @@ document.addEventListener("DOMContentLoaded", () => {
           id: Date.now(),
           tipo: "Salida",
           productoId: itemId,
+          producto: `${producto.nombre} (${producto.modelo})`,
+          inventario: "Producto",
           cantidad: usado,
           loteId: entrada.loteId,
           destino,
@@ -296,6 +427,8 @@ document.addEventListener("DOMContentLoaded", () => {
             id: Date.now(),
             tipo: "Salida",
             maquinariaId: itemId,
+            producto: `${maquinaria.nombre} (${maquinaria.modelo})`,
+            inventario: "Maquinaria",
             cantidad: usado,
             loteId: entrada.loteId,
             destino,
@@ -327,7 +460,8 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("tipoInventario")?.addEventListener("change", actualizarOpcionesInventario);
   mostrarStockGlobal();
   mostrarStockMaquinarias();
-  
+  mostrarHistorialKits();
+
 });
 
 
@@ -427,12 +561,60 @@ function actualizarOpcionesSalida() {
     items = obtenerProductos();
   } else if (tipo === "maquinaria") {
     items = obtenerMaquinarias();
+  } else if (tipo === "kit") {
+    items = obtenerKits();
   }
 
   items.forEach(item => {
     const opt = document.createElement("option");
     opt.value = item.id;
-    opt.textContent = `${item.nombre} (${item.modelo})`;
+    opt.textContent = `${item.nombre}`;
     select.appendChild(opt);
   });
 }
+
+function mostrarHistorialKits() {
+  const historial = obtenerHistorial();
+  const tabla = document.getElementById("tablaHistorialKits");
+  if (!tabla) return;
+  tabla.innerHTML = "";
+
+  // ✅ Agrupar por kitNombre + fecha + destino + usuario
+  const grupos = {};
+
+  historial
+    .filter(m => m.tipo === "Salida (Kit)")
+    .forEach(mov => {
+      const clave = `${mov.kitNombre}|${mov.destino}|${mov.fecha}|${mov.usuario}|${mov.kitsEntregados}`;
+      if (!grupos[clave]) grupos[clave] = [];
+      grupos[clave].push(mov);
+    });
+
+  Object.entries(grupos).forEach(([clave, movimientos]) => {
+    const [kitNombre, destino, fecha, usuario, cantidadKits] = clave.split("|");
+
+    const componentes = {};
+    movimientos.forEach(m => {
+      if (!componentes[m.producto]) {
+        componentes[m.producto] = { cantidad: 0, tipo: m.inventario };
+      }
+      componentes[m.producto].cantidad += m.cantidad;
+    });
+
+    const listaComponentes = Object.entries(componentes)
+      .map(([nombre, data]) => `- ${nombre} (${data.tipo}, x${data.cantidad})`)
+      .join("<br>");
+
+    const fila = document.createElement("tr");
+    fila.innerHTML = `
+      <td>${kitNombre}</td>
+      <td>${listaComponentes}</td>
+      <td>${cantidadKits}</td>
+      <td>${destino}</td>
+      <td>${fecha}</td>
+      <td>${usuario}</td>
+    `;
+    tabla.appendChild(fila);
+  });
+}
+

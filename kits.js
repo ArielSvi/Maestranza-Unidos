@@ -78,7 +78,6 @@ function cargarKits() {
         <td>${kit.id}</td>
         <td>${kit.nombre}</td>
         <td>${lista}</td>
-        <td>${kit.stock}</td>
         <td><button class="btn btn-danger btn-sm" onclick="eliminarKit(${kit.id})">Eliminar</button></td>
       </tr>`;
   });
@@ -93,35 +92,56 @@ function eliminarKit(id) {
 }
 
 // --- Crear nuevo kit ---
-document.getElementById("formKit").addEventListener("submit", function(e) {
+document.getElementById("formKit").addEventListener("submit", function (e) {
   e.preventDefault();
 
   const nombre = document.getElementById("nombreKit").value.trim();
-  const stock = parseInt(document.getElementById("stockKit").value.trim());
 
   const inputsCantidad = document.querySelectorAll(".cantidad-input");
   const componentes = [];
 
+  const productos = obtenerProductos(); // función de storageProducto.js
+  const maquinarias = obtenerMaquinarias(); // función de storageMaquinaria.js
+
+
   inputsCantidad.forEach(input => {
-    if (!input.disabled && parseInt(input.value) > 0) {
-      componentes.push({
-        nombre: input.dataset.label,
-        cantidad: parseInt(input.value)
-      });
+    if (!input.disabled || parseInt(input.value) > 0) {
+      const label = input.dataset.label;
+      const cantidadPorKit = parseInt(input.value);
+      // Detectar si es producto o maquinaria
+      let tipo = "";
+      let item = productos.find(p => `Producto - ${p.nombre} (${p.modelo})` === label);
+      if (item) tipo = "producto";
+      else {
+        item = maquinarias.find(m => `Maquinaria - ${m.nombre} (${m.modelo})` === label);
+        if (item) tipo = "maquinaria";
+      }
+
+      if (item) {
+        componentes.push({
+          tipo,
+          id: item.id,
+          nombre: label,
+          cantidad: cantidadPorKit
+        });
+      }
+
     }
   });
 
-  if (!nombre || !stock || componentes.length === 0) {
-    alert("Completa todos los campos y selecciona al menos un componente con cantidad válida.");
+  if (!nombre || componentes.length === 0) {
+    alert("Completa todos los campos y selecciona al menos un componente.");
     return;
   }
 
+
+  // Guardar nuevo kit
   const nuevoKit = {
     id: Date.now(),
     nombre,
-    componentes,
-    stock
+    componentes
   };
+
 
   const kits = JSON.parse(localStorage.getItem("kits") || "[]");
   kits.push(nuevoKit);
