@@ -94,19 +94,29 @@
 
 
       <div id="formularioEntrada" class="card p-4 mb-4 d-none">
-        <h5 class="text-center mb-3">Registrar Entrada de Producto (por Lote)</h5>
-        <form id="formEntradaProducto" class="row g-3">
-          <div class="col-md-5">
-            <label class="form-label">Producto</label>
-            <select id="producto" class="form-select" required></select>
-          </div>
-          <div class="col-md-3">
-            <label class="form-label">Cantidad</label>
-            <input type="number" id="cantidad" class="form-control" min="1" required />
-          </div>
+        <h5 class="text-center mb-3">Registrar Entrada</h5>
+        <form id="formEntrada" class="row g-3">
+
           <div class="col-md-4">
+            <label class="form-label">Tipo de Inventario</label>
+            <select id="tipoInventario" class="form-select" onchange="actualizarOpcionesInventario()">
+              <option value="" disabled selected>Seleccione tipo</option>
+              <option value="producto">Producto</option>
+              <option value="maquinaria">Maquinaria</option>
+            </select>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Ítem</label>
+            <select id="itemEntrada" class="form-select" required></select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Cantidad</label>
+            <input type="number" id="cantidadEntrada" class="form-control" min="1" required />
+          </div>
+          <div class="col-md-3" id="bloqueFecha">
             <label class="form-label">Fecha de Vencimiento</label>
-            <input type="date" id="fechaVencimiento" class="form-control" required />
+            <input type="date" id="fechaVencimientoEntrada" class="form-control" />
           </div>
           <div class="col-12 text-end">
             <button type="submit" class="btn btn-success">Registrar Entrada</button>
@@ -114,48 +124,41 @@
         </form>
     </div>
 
-    <div id="formularioEntradaMaquinaria" class="card p-4 mb-4 d-none">
-      <h5 class="text-center mb-3">Registrar Entrada de Maquinaria</h5>
-      <form id="formEntradaMaquinaria" class="row g-3">
-        <div class="col-md-5">
-          <label class="form-label">Maquinaria</label>
-          <select id="maquinaria" class="form-select" required></select>
-        </div>
-        <div class="col-md-3">
-          <label class="form-label">Cantidad</label>
-          <input type="number" id="cantidadMaquinaria" class="form-control" min="1" required />
-        </div>
-        <div class="col-md-4">
-          <label class="form-label">Fecha de Vencimiento</label>
-          <input type="date" id="fechaVencimientoMaquinaria" class="form-control" required />
-        </div>
-        <div class="col-12 text-end">
-          <button type="submit" class="btn btn-success">Registrar Entrada</button>
-        </div>
-      </form>
-    </div>
-
 
     <div id="formularioSalida" class="card p-4 mb-4 d-none">
-      <h5 class="text-center mb-3">Registrar Salida de Producto</h5>
-      <form id="formSalidaProducto" class="row g-3">
-        <div class="col-md-5">
-          <label class="form-label">Producto</label>
-          <select id="productoSalida" class="form-select" required></select>
+      <h5 class="text-center mb-3">Registrar Salida</h5>
+      <form id="formSalida" class="row g-3">
+
+        <div class="col-md-4">
+          <label class="form-label">Tipo de Inventario</label>
+          <select id="tipoSalida" class="form-select" onchange="actualizarOpcionesSalida()">
+            <option value="" disabled selected>Seleccione tipo</option>
+            <option value="producto">Producto</option>
+            <option value="maquinaria">Maquinaria</option>
+          </select>
         </div>
-        <div class="col-md-3">
+
+        <div class="col-md-4">
+          <label class="form-label">Ítem</label>
+          <select id="itemSalida" class="form-select" required></select>
+        </div>
+
+        <div class="col-md-2">
           <label class="form-label">Cantidad</label>
           <input type="number" id="cantidadSalida" class="form-control" min="1" required />
         </div>
+
         <div class="col-md-4">
           <label class="form-label">Destino</label>
           <input type="text" id="destinoSalida" class="form-control" placeholder="Ej: Proyecto Minera Norte" required />
         </div>
+
         <div class="col-12 text-end">
           <button type="submit" class="btn btn-danger">Registrar Salida</button>
         </div>
       </form>
     </div>
+
 
 
     <div id="resumenStock" class="card p-4 mb-4 d-none">
@@ -178,7 +181,7 @@
     </div>
 
     <div id="vistaStockGlobal" class="card p-4 mb-4">
-      <h5 class="text-center mb-3">Vista General de Stock por Producto</h5>
+      <h5 class="text-center mb-3">Vista General de Stock</h5>
       <div class="table-responsive">
         <table class="table table-hover table-sm">
           <thead class="table-light">
@@ -195,6 +198,24 @@
       </div>
     </div>
 
+    <div id="vistaStockMaquinarias" class="card p-4 mb-4">
+      <h5 class="text-center mb-3">Vista General de Stock por Maquinaria</h5>
+      <div class="table-responsive">
+        <table class="table table-hover table-sm">
+          <thead class="table-light">
+            <tr>
+              <th>Maquinaria</th>
+              <th>Modelo</th>
+              <th>Stock Total</th>
+              <th>Lotes Activos</th>
+            </tr>
+          </thead>
+          <tbody id="tablaStockMaquinarias"></tbody>
+        </table>
+      </div>
+    </div>
+
+
 
   </div>
 
@@ -208,7 +229,7 @@
 
   function cargarOpcionesInventario() {
     const tipo = document.getElementById("tipoInventario").value;
-    const select = document.getElementById("producto");
+    const select = document.getElementById("itemEntrada");
     select.innerHTML = '<option selected disabled value="">Selecciona...</option>';
 
     let items = [];
@@ -311,7 +332,8 @@ function mostrarStockDisponible() {
 }
 </script>
 
-
+<script src="storageProducto.js"></script>
+<script src="storageMaquinaria.js"></script>
 <script src="movimientos.js"></script>
 </body>
 </html>
