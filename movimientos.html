@@ -80,61 +80,102 @@
     <a href="login.html"><img src="https://img.icons8.com/ios-filled/24/000000/logout-rounded-left.png" /><span class="label">Cerrar sesión</span></a>
   </div>
 
-<div class="main-content">
-  <div class="d-flex justify-content-between flex-wrap mb-4">
-    <div class="bg-light p-3 rounded text-center flex-fill me-2">
-      <strong>REGISTRO DE MOVIMIENTOS</strong>
+  <div class="main-content">
+      <div class="d-flex justify-content-between flex-wrap mb-4">
+        <div class="bg-light p-3 rounded text-center flex-fill me-2">
+          <strong>REGISTRO DE MOVIMIENTOS</strong>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-center gap-3 mb-4">
+        <button class="btn btn-outline-success" onclick="mostrarFormulario('entrada')">Registrar Entrada</button>
+        <button class="btn btn-outline-danger" onclick="mostrarFormulario('salida')">Registrar Salida</button>
+      </div>
+
+
+      <div id="formularioEntrada" class="card p-4 mb-4 d-none">
+        <h5 class="text-center mb-3">Registrar Entrada de Producto (por Lote)</h5>
+        <form id="formEntradaProducto" class="row g-3">
+          <div class="col-md-5">
+            <label class="form-label">Producto</label>
+            <select id="producto" class="form-select" required></select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Cantidad</label>
+            <input type="number" id="cantidad" class="form-control" min="1" required />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Fecha de Vencimiento</label>
+            <input type="date" id="fechaVencimiento" class="form-control" required />
+          </div>
+          <div class="col-12 text-end">
+            <button type="submit" class="btn btn-success">Registrar Entrada</button>
+          </div>
+        </form>
     </div>
+
+    <div id="formularioSalida" class="card p-4 mb-4 d-none">
+      <h5 class="text-center mb-3">Registrar Salida de Producto</h5>
+      <form id="formSalidaProducto" class="row g-3">
+        <div class="col-md-5">
+          <label class="form-label">Producto</label>
+          <select id="productoSalida" class="form-select" required></select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Cantidad</label>
+          <input type="number" id="cantidadSalida" class="form-control" min="1" required />
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Destino</label>
+          <input type="text" id="destinoSalida" class="form-control" placeholder="Ej: Proyecto Minera Norte" required />
+        </div>
+        <div class="col-12 text-end">
+          <button type="submit" class="btn btn-danger">Registrar Salida</button>
+        </div>
+      </form>
+    </div>
+
+
+    <div id="resumenStock" class="card p-4 mb-4 d-none">
+      <h5 class="text-center mb-3">Resumen de Stock Disponible por Lote</h5>
+      <div class="table-responsive">
+        <table class="table table-striped table-bordered">
+          <thead class="table-light">
+            <tr>
+              <th>Producto</th>
+              <th>Modelo</th>
+              <th>Lote ID</th>
+              <th>Cantidad</th>
+              <th>Fecha Vencimiento</th>
+              <th>Ubicación</th>
+            </tr>
+          </thead>
+          <tbody id="tablaStockDisponible"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="vistaStockGlobal" class="card p-4 mb-4">
+      <h5 class="text-center mb-3">Vista General de Stock por Producto</h5>
+      <div class="table-responsive">
+        <table class="table table-hover table-sm">
+          <thead class="table-light">
+            <tr>
+              <th>Producto</th>
+              <th>Modelo</th>
+              <th>Stock Total</th>
+              <th>Lotes Activos</th>
+              <th>Próx. Vencimiento</th>
+            </tr>
+          </thead>
+          <tbody id="tablaStockGlobal"></tbody>
+        </table>
+      </div>
+    </div>
+
+
   </div>
 
-  <div class="card p-4 mb-4">
-    <form id="formMovimiento" class="row g-3">
-      <div class="col-md-3">
-        <label class="form-label">Tipo</label>
-        <select id="tipo" class="form-select" required onchange="mostrarUbicaciones()">
-          <option selected disabled value="">Selecciona...</option>
-          <option value="Entrada">Entrada</option>
-          <option value="Salida">Salida</option>
-          <option value="Transferencia">Transferencia</option>
-        </select>
-      </div>
-      <div class="col-md-3">
-        <label class="form-label">Tipo de Inventario</label>
-        <select id="tipoInventario" class="form-select" required onchange="cargarOpcionesInventario()">
-          <option selected disabled value="">Selecciona...</option>
-          <option value="productos">Producto</option>
-          <option value="maquinarias">Maquinaria</option>
-        </select>
-      </div>
-      <div class="col-md-3">
-        <label class="form-label">Modelo</label>
-        <select id="producto" class="form-select" required>
-          <option selected disabled value="">Selecciona tipo primero</option>
-        </select>
-      </div>
-      <div class="col-md-2">
-        <label class="form-label">Cantidad</label>
-        <input type="number" id="cantidad" class="form-control" min="1" required>
-      </div>
-      <div class="col-md-2">
-        <label class="form-label">Usuario</label>
-        <input type="text" id="usuario" class="form-control" value="admin" required>
-      </div>
-      <div class="col-md-3 d-none" id="divOrigen">
-        <label class="form-label">Origen</label>
-        <input type="text" id="origen" class="form-control">
-      </div>
-      <div class="col-md-3 d-none" id="divDestino">
-        <label class="form-label">Destino</label>
-        <input type="text" id="destino" class="form-control">
-      </div>
-      <div class="col-md-2">
-        <label class="form-label">&nbsp;</label>
-        <button type="submit" class="btn btn-primary w-100">Registrar</button>
-      </div>
-    </form>
-  </div>
-</div>
 
   <script>
   function toggleSidebar() {
@@ -142,74 +183,6 @@
     sidebar.classList.toggle("collapsed");
     document.querySelector(".main-content").style.marginLeft = sidebar.classList.contains("collapsed") ? "60px" : "220px";
   }
-
-  function mostrarUbicaciones() {
-    const tipo = document.getElementById("tipo").value;
-    document.getElementById("divOrigen").classList.add("d-none");
-    document.getElementById("divDestino").classList.add("d-none");
-    if (tipo === "Salida") document.getElementById("divOrigen").classList.remove("d-none");
-    if (tipo === "Transferencia") {
-      document.getElementById("divOrigen").classList.remove("d-none");
-      document.getElementById("divDestino").classList.remove("d-none");
-    }
-  }
-
-  document.getElementById("formMovimiento").addEventListener("submit", function (e) {
-    e.preventDefault();
-
-    const tipo = document.getElementById("tipo").value;
-    const tipoInventario = document.getElementById("tipoInventario").value;
-    const modeloSeleccionado = document.getElementById("producto").value;
-    const cantidad = parseInt(document.getElementById("cantidad").value);
-    const usuario = document.getElementById("usuario").value;
-    const fecha = new Date().toLocaleString("es-CL");
-    const origen = document.getElementById("origen").value || "-";
-    const destino = document.getElementById("destino").value || "-";
-    const id = Date.now();
-
-    let inventario, guardar;
-    if (tipoInventario === "productos") {
-      inventario = obtenerProductos();
-      guardar = guardarProductos;
-    } else if (tipoInventario === "maquinarias") {
-      inventario = obtenerMaquinarias();
-      guardar = guardarMaquinarias;
-    } else {
-      alert("Tipo de inventario no válido.");
-      return;
-    }
-
-    const item = inventario.find(p => p.modelo.toLowerCase() === modeloSeleccionado.toLowerCase());
-    if (!item) {
-      alert("No se encontró el modelo seleccionado.");
-      return;
-    }
-
-    if (tipo === "Entrada") {
-      const nuevoStock = item.stock + cantidad;
-      if (item.stockMax && nuevoStock > item.stockMax) {
-        alert(`No se puede ingresar la cantidad. Supera el stock máximo de ${item.stockMax}.`);
-        return;
-      }
-      item.stock = nuevoStock;
-    } else if (tipo === "Salida" || tipo === "Transferencia") {
-      if (cantidad > item.stock) {
-        alert(`No se puede retirar ${cantidad}. Stock disponible: ${item.stock}.`);
-        return;
-      }
-      item.stock = Math.max(0, item.stock - cantidad);
-    }
-
-    guardar(inventario);
-
-    const movimiento = { id, tipo, producto: modeloSeleccionado, cantidad, usuario, fecha, origen, destino };
-    const movimientos = JSON.parse(localStorage.getItem("historial")) || [];
-    movimientos.push(movimiento);
-    localStorage.setItem("historial", JSON.stringify(movimientos));
-
-    e.target.reset();
-    mostrarUbicaciones();
-  });
 
   function cargarOpcionesInventario() {
     const tipo = document.getElementById("tipoInventario").value;
@@ -267,5 +240,56 @@
   });
 </script>
 
+<script>
+function mostrarFormulario(tipo) {
+  const entrada = document.getElementById("formularioEntrada");
+  const salida = document.getElementById("formularioSalida");
+  const resumen = document.getElementById("resumenStock");
+
+  entrada?.classList.add("d-none");
+  salida?.classList.add("d-none");
+  resumen?.classList.add("d-none");
+
+  if (tipo === "entrada") entrada?.classList.remove("d-none");
+  if (tipo === "salida") {
+    salida?.classList.remove("d-none");
+    mostrarStockDisponible();
+  }
+}
+</script>
+
+<script>
+function mostrarStockDisponible() {
+  const productos = JSON.parse(localStorage.getItem("productos")) || [];
+  const tabla = document.getElementById("tablaStockDisponible");
+  const contenedor = document.getElementById("resumenStock");
+  tabla.innerHTML = "";
+
+  productos.forEach(producto => {
+    if (producto.entradas && producto.entradas.length > 0) {
+      producto.entradas
+        .filter(e => e.cantidad > 0)
+        .sort((a, b) => new Date(a.fechaIngreso) - new Date(b.fechaIngreso))
+        .forEach(e => {
+          const fila = document.createElement("tr");
+          fila.innerHTML = `
+            <td>${producto.nombre}</td>
+            <td>${producto.modelo}</td>
+            <td>${e.loteId}</td>
+            <td>${e.cantidad}</td>
+            <td>${e.fechaVencimiento}</td>
+            <td>${e.ubicacion}</td>
+          `;
+          tabla.appendChild(fila);
+        });
+    }
+  });
+
+  contenedor.classList.remove("d-none");
+}
+</script>
+
+
+<script src="movimientos.js"></script>
 </body>
 </html>
