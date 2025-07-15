@@ -171,6 +171,40 @@
 <div class="container">
   <h2 class="mb-4">Panel de Reportes</h2>
 
+  <!-- Selector de tipo de reporte -->
+  <div class="mb-4">
+    <label for="tipoReporte" class="form-label fw-bold">Selecciona tipo de reporte:</label>
+    <select id="tipoReporte" class="form-select" onchange="cargarReporteSeleccionado()">
+      <option value="">-- Seleccionar --</option>
+      <option value="productos">Productos</option>
+      <option value="maquinarias">Maquinarias</option>
+      <option value="movimientos">Movimientos</option>
+      <option value="compras">Compras</option>
+      <option value="kits">Kits / Conjuntos</option>
+    </select>
+  </div>
+
+  <!-- Filtros específicos según tipo -->
+  <div id="filtrosDinamicos" class="mb-4"></div>
+
+  <!-- Tabla dinámica de resultados -->
+  <div class="table-responsive mb-3">
+    <table id="tablaReportes" class="table table-bordered table-striped">
+      <thead>
+        <tr><th>Seleccione un tipo de reporte para ver datos</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <!-- Botones de exportación -->
+  <div class="mb-5">
+    <button class="btn btn-outline-primary me-2" onclick="exportarExcel()">Exportar a Excel</button>
+    <button class="btn btn-outline-danger" onclick="exportarPDF()">Exportar a PDF</button>
+  </div>
+
+
+
   <!-- Resumen numérico -->
   <div class="row mb-4">
     <div class="col-md-4">
@@ -309,6 +343,18 @@
     }
   });
 </script>
+
+<!-- Librerías necesarias -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+<!-- Script de reportes -->
+<script src="reportes.js"></script>
+<script src="movimientos.js"></script>
+<script src="usuarios.js"></script>
+<script src="storageProducto.js"></script>
+<script src="storageMaquinaria.js"></script>
 
 </body>
 </html>

@@ -197,6 +197,10 @@
           <label class="form-label">Cantidad</label>
           <input id="inputCantidad" type="number" class="form-control" placeholder="Cantidad" />
         </div>
+        <div class="col-md-3">
+          <label class="form-label">Precio Unitario</label>
+          <input id="inputPrecio" type="number" class="form-control" placeholder="Ej: 15000" min="0" step="any" />
+        </div>
         <div class="col-md-3 d-flex align-items-end">
           <button class="btn btn-success w-100" onclick="agregarItem()">Agregar</button>
         </div>
@@ -210,6 +214,7 @@
               <th>Categoria</th>
               <th>Producto</th>
               <th>Cantidad</th>
+              <th>Precio Unitario</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -241,6 +246,7 @@
       const productoId = document.getElementById('productoSeleccionado').value;
       const productoNombre = document.getElementById('inputProducto').value.trim();
       const cantidad = parseInt(document.getElementById('inputCantidad').value.trim());
+      const precioUnitario = parseFloat(document.getElementById('inputPrecio').value.trim());
 
       if (!categoria) {
         alert("Selecciona una categoría.");
@@ -257,6 +263,12 @@
         return;
       }
 
+      if (isNaN(precioUnitario) || precioUnitario <= 0) {
+      alert("Ingresa un precio unitario válido.");
+      return;
+}
+
+
       // ✅ Validación para evitar duplicados por productoId
       const existe = items.some(item =>
         item.productoId === parseInt(productoId) && item.categoria === categoria
@@ -271,8 +283,10 @@
         categoria,
         productoId: parseInt(productoId),
         nombre: productoNombre,
-        cantidad
+        cantidad,
+        precioUnitario
       });
+
 
       actualizarTabla();
       document.getElementById('inputProducto').value = '';
@@ -291,6 +305,7 @@
           <td>${item.categoria.charAt(0).toUpperCase() + item.categoria.slice(1)}</td>
           <td>${item.nombre}</td>
           <td>${item.cantidad}</td>
+          <td>$${item.precioUnitario.toLocaleString()}</td>
           <td><button class="btn btn-danger btn-sm" onclick="eliminarItem(${index})">Eliminar</button></td>
         `;
         tbody.appendChild(fila);
@@ -309,7 +324,7 @@
     function guardarOrden() {
       const proveedorId = document.getElementById('proveedorIdSeleccionado').value;
       const proveedorTexto = document.getElementById('inputProveedor').value.trim();
-      const fecha = document.getElementById('inputFecha').value;
+      const fecha = new Date().toISOString(); // Ejemplo: "2025-07-15T17:24:30.000Z"
 
       if (!proveedorId || proveedorTexto === "") {
         alert("Debes seleccionar un proveedor válido desde la lista desplegable.");
@@ -350,13 +365,17 @@
         }
       }
 
+      const usuarioActivo = JSON.parse(localStorage.getItem("usuarioActivo"));
+
       // ✅ Si todo está correcto, guardamos
       agregarOrdenCompra({
         proveedorId: parseInt(proveedorId),
         proveedorNombre: proveedorTexto,
         fecha,
-        items
+        items,
+        usuario: usuarioActivo?.usuario || "-"
       });
+
 
       alert("Orden de compra guardada correctamente");
       location.href = "compras.html";

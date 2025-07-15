@@ -171,9 +171,11 @@
   <!-- Contenido principal -->
   <div class="main-content">
     <div class="d-flex justify-content-between flex-wrap mb-4">
-      <div class="bg-light p-3 rounded text-center flex-fill me-2">
-        <strong>BIENVENIDO<br>JUANITO LOPEZ<br>(ADMINISTRADOR)</strong>
+      <div class="bg-light p-3 rounded text-center flex-fill me-2 d-flex flex-column align-items-center">
+        <img id="avatarUsuario" src="https://img.icons8.com/ios-filled/50/user.png" class="mb-2" style="width: 50px; height: 50px;" alt="avatar" />
+        <strong id="nombreUsuario"></strong>
       </div>
+
       <div class="bg-light p-3 rounded text-center flex-fill ms-2">
         <strong>FECHA ACTUAL:<br><span id="fecha"></span></strong>
       </div>
@@ -190,14 +192,7 @@
               <thead class="table-light">
                 <tr><th>Producto</th><th>Stock</th></tr>
               </thead>
-              <tbody>
-                <tr><td>Producto 1</td><td class="stock-critical">&nbsp;</td></tr>
-                <tr><td>Producto 2</td><td class="stock-low">&nbsp;</td></tr>
-                <tr><td>Producto 3</td><td class="stock-critical">&nbsp;</td></tr>
-                <tr><td>Producto 4</td><td class="stock-low">&nbsp;</td></tr>
-                <tr><td>Producto 5</td><td class="stock-low">&nbsp;</td></tr>
-                <tr><td>Producto 6</td><td class="stock-critical">&nbsp;</td></tr>
-              </tbody>
+              <tbody></tbody>
             </table>
           </div>
         </div>
@@ -207,6 +202,11 @@
       <div class="col-md-8 mb-4">
         <div class="card"> 
           <div class="card-body">
+
+            <div class="card-body">
+              <h5 class="text-center mb-3">Entradas y Salidas Recientes</h5>
+              <div id="chart"></div>
+            </div>
             <div id="chart"></div>
           </div>
         </div>
@@ -219,35 +219,6 @@
     document.getElementById('fecha').textContent = new Date().toLocaleDateString('es-CL', {
       weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
     });
-  </script>
-
-  <!-- JS: ApexCharts -->
-  <script>
-    const options = {
-      chart: {
-        type: 'bar',
-        height: 350
-      },
-      series: [
-        { name: 'Entrada', data: [480, 560, 400] },
-        { name: 'Salida', data: [320, 210, 230] }
-      ],
-      plotOptions: {
-        bar: {
-          horizontal: true,
-          barHeight: '60%',
-        }
-      },
-      colors: ['#00BFFF', '#1E3A8A'],
-      xaxis: {
-        categories: ['Producto A', 'Producto B', 'Producto C']
-      },
-      legend: {
-        position: 'top'
-      }
-    };
-    const chart = new ApexCharts(document.querySelector("#chart"), options);
-    chart.render();
   </script>
 
   <!-- JS: Sidebar toggle -->
@@ -318,93 +289,7 @@
   </div>
 </div>
 
-<script>
-  // Roles que pueden ver alerta
-  const rolesConAlertaStock = ["administrador", "gestorInventario", "comprador"];
-
-  if (rolesConAlertaStock.includes(rol)) {
-    const productos = JSON.parse(localStorage.getItem("productos")) || [];
-    const tablaBody = document.querySelector("tbody");
-    tablaBody.innerHTML = ""; // limpiar por si había contenido de ejemplo
-
-    productos.forEach(prod => {
-      const porcentaje = (prod.stock / prod.stockMax) * 100;
-      let clase = "";
-
-      if (porcentaje <= 20) {
-        clase = "stock-critical";
-      } else if (porcentaje <= 40) {
-        clase = "stock-low";
-      }
-
-      if (clase) {
-        const fila = document.createElement("tr");
-        fila.innerHTML = `
-          <td>${prod.nombre}</td>
-          <td class="${clase}">${prod.stock}</td>
-        `;
-        tablaBody.appendChild(fila);
-      }
-    });
-  } else {
-    // Ocultar la tarjeta completa si el rol no tiene acceso
-    const tarjetaStock = document.querySelector(".col-md-4.mb-4");
-    if (tarjetaStock) tarjetaStock.style.display = "none";
-  }
-</script>
-
-
-<script>
-if (rolesConAlertaStock.includes(rol)) {
-  const productos = JSON.parse(localStorage.getItem("productos")) || [];
-  const tablaBody = document.querySelector("tbody");
-  const listaCriticos = document.getElementById("listaCriticos");
-  const listaBajos = document.getElementById("listaBajos");
-  let hayCriticos = false;
-
-  tablaBody.innerHTML = "";
-  listaCriticos.innerHTML = "";
-  listaBajos.innerHTML = "";
-
-  productos.forEach(prod => {
-    const porcentaje = (prod.stock / prod.stockMax) * 100;
-    let clase = "";
-
-    if (porcentaje <= 20) {
-      clase = "stock-critical";
-      hayCriticos = true;
-
-      const item = document.createElement("li");
-      item.className = "list-group-item";
-      item.textContent = `${prod.nombre}: ${prod.stock} unidades`;
-      listaCriticos.appendChild(item);
-    } else if (porcentaje <= 50) {
-      clase = "stock-low";
-
-      const item = document.createElement("li");
-      item.className = "list-group-item";
-      item.textContent = `${prod.nombre}: ${prod.stock} unidades`;
-      listaBajos.appendChild(item);
-    }
-
-    if (clase) {
-      const fila = document.createElement("tr");
-      fila.innerHTML = `
-        <td>${prod.nombre}</td>
-        <td class="${clase}">${prod.stock}</td>
-      `;
-      tablaBody.appendChild(fila);
-    }
-  });
-
-  if (hayCriticos) {
-    const modal = new bootstrap.Modal(document.getElementById("modalStockCritico"));
-    modal.show();
-  }
-}
-
-</script>
-
+<script src="dashboard.js"></script>
 
 </body>
 </html>
