@@ -177,6 +177,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!producto) return alert("Producto no encontrado.");
 
         if (!producto.entradas) producto.entradas = [];
+        if (producto.stock + cantidad > producto.stockMax) {
+          alert(`La cantidad ingresada excede el stock máximo permitido (${producto.stockMax}).\nStock actual: ${producto.stock}`);
+          return;
+        }
         producto.entradas.push(entrada);
         producto.stock = producto.entradas.reduce((sum, e) => sum + e.cantidad, 0);
         guardarProductos(productos);
@@ -202,6 +206,11 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!maquinaria) return alert("Maquinaria no encontrada.");
 
         if (!maquinaria.entradas) maquinaria.entradas = [];
+        if (maquinaria.stock + cantidad > maquinaria.stockMax) {
+          alert(`La cantidad ingresada excede el stock máximo permitido (${maquinaria.stockMax}).\nStock actual: ${maquinaria.stock}`);
+          return;
+        }
+
         maquinaria.entradas.push(entrada);
         maquinaria.stock = maquinaria.entradas.reduce((sum, e) => sum + e.cantidad, 0);
         guardarMaquinarias(maquinarias);
