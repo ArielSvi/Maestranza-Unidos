@@ -66,6 +66,49 @@ function registrarEntrada({ productoId, cantidad, fechaVencimiento, loteRecepcio
   alert("Entrada registrada correctamente en lote " + loteRecepcion);
 }
 
+function registrarEntradaMaquinaria({ maquinariaId, cantidad, fechaVencimiento, loteRecepcion, usuario }) {
+  const maquinarias = obtenerMaquinarias();
+  const maquinaria = maquinarias.find(m => m.id === maquinariaId);
+  if (!maquinaria) return alert("Maquinaria no encontrada.");
+
+  if (!maquinaria.entradas) maquinaria.entradas = [];
+
+  const entrada = {
+    loteId: Date.now(),
+    cantidad,
+    fechaIngreso: new Date().toISOString().split("T")[0],
+    fechaVencimiento,
+    ubicacion: "Bodega Central",
+    loteRecepcion
+  };
+
+  maquinaria.entradas.push(entrada);
+
+  maquinaria.stock = maquinaria.entradas
+    .filter(e => e.cantidad > 0)
+    .reduce((sum, e) => sum + e.cantidad, 0);
+
+  actualizarMaquinaria(maquinaria);
+
+  const historial = obtenerHistorial();
+  historial.push({
+    id: Date.now(),
+    tipo: "Entrada",
+    inventario: "maquinaria",
+    maquinariaId,
+    cantidad,
+    loteId: entrada.loteId,
+    loteRecepcion,
+    fecha: new Date().toLocaleString("es-CL"),
+    usuario,
+    ubicacion: "Bodega Central",
+    fechaVencimiento
+  });
+  guardarHistorial(historial);
+
+  alert("Entrada registrada correctamente en lote " + loteRecepcion);
+}
+
 
 function registrarSalidaOptimizada({ productoId, cantidad, destino, usuario }) {
   const productos = obtenerProductos();
@@ -131,9 +174,44 @@ function cargarOpcionesProductos(selectElementId) {
   });
 }
 
+function cargarOpcionesMaquinarias(selectElementId) {
+  const maquinarias = obtenerMaquinarias();
+  const select = document.getElementById(selectElementId);
+  select.innerHTML = '<option disabled selected value="">Seleccione maquinaria</option>';
+  maquinarias.forEach(m => {
+    const opt = document.createElement("option");
+    opt.value = m.id;
+    opt.textContent = `${m.nombre} (${m.modelo})`;
+    select.appendChild(opt);
+  });
+}
+
+
 document.addEventListener("DOMContentLoaded", () => {
   cargarOpcionesProductos("producto");
   cargarOpcionesProductos("productoSalida");
+
+  cargarOpcionesMaquinarias("maquinaria");
+
+  const formEntradaMaquinaria = document.getElementById("formEntradaMaquinaria");
+  if (formEntradaMaquinaria) {
+    formEntradaMaquinaria.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const maquinariaId = parseInt(document.getElementById("maquinaria").value);
+      const cantidad = parseInt(document.getElementById("cantidadMaquinaria").value);
+      const fechaVencimiento = document.getElementById("fechaVencimientoMaquinaria").value;
+      const usuario = JSON.parse(localStorage.getItem("usuarioActivo"))?.usuario || "admin";
+
+      if (!maquinariaId || !cantidad || !fechaVencimiento) {
+        alert("Completa todos los campos obligatorios.");
+        return;
+      }
+
+      registrarEntradaMaquinaria({ maquinariaId, cantidad, fechaVencimiento, loteRecepcion, usuario });
+      formEntradaMaquinaria.reset();
+      mostrarStockGlobal(); // o mostrarStockGlobalMaquinaria();
+    });
+  }
 
   const loteRecepcion = generarLoteRecepcion();
   const formEntrada = document.getElementById("formEntradaProducto");
@@ -178,6 +256,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   mostrarStockGlobal();
 });
+
+
 
 function mostrarStockGlobal() {
   const productos = obtenerProductos();
