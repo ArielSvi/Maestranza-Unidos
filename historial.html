@@ -133,6 +133,60 @@
       </div>
     </div>
 
+        <!-- Filtros actualizados -->
+    <div class="card p-3 mb-3">
+      <h5 class="mb-3">Filtros de búsqueda</h5>
+      <div class="row g-2 align-items-end">
+
+        <!-- Tipo de Inventario -->
+        <div class="col-md-3">
+          <label class="form-label mb-1">Tipo de Inventario</label>
+          <select id="filtroInventario" class="form-select">
+            <option value="">Todos</option>
+            <option value="Producto">Producto</option>
+            <option value="Maquinaria">Maquinaria</option>
+          </select>
+        </div>
+
+        <!-- Tipo de Movimiento -->
+        <div class="col-md-3">
+          <label class="form-label mb-1">Tipo de Movimiento</label>
+          <select id="filtroTipo" class="form-select">
+            <option value="">Todos</option>
+            <option value="Entrada">Entrada</option>
+            <option value="Salida">Salida</option>
+          </select>
+        </div>
+
+        <!-- Usuario -->
+        <div class="col-md-3">
+          <label class="form-label mb-1">Usuario</label>
+          <select id="filtroUsuario" class="form-select">
+            <option value="">Todos</option>
+          </select>
+        </div>
+
+        <!-- Rango de fechas -->
+        <div class="col-md-3">
+          <label class="form-label mb-1">Desde / Hasta</label>
+          <div class="input-group">
+            <input type="date" id="fechaDesde" class="form-control">
+            <input type="date" id="fechaHasta" class="form-control">
+          </div>
+        </div>
+
+        <div class="col-12 text-end mt-2">
+          <button class="btn btn-primary me-2" onclick="cargarHistorial()">Aplicar Filtros</button>
+          <button class="btn btn-secondary me-2" onclick="limpiarFiltros()">Limpiar Filtros</button>
+          <button class="btn btn-outline-danger" onclick="limpiarTabla()">Limpiar Visual</button>
+        </div>
+
+      </div>
+    </div>
+
+
+
+
     <div class="card p-3">
       <h5 class="mb-3">Listado de Movimientos</h5>
       <div class="table-responsive scrollable">
@@ -155,6 +209,7 @@
     </div>
   </div>
 
+<script src="storageService.js"></script>
 <script>
 function toggleSidebar() {
   const sidebar = document.getElementById("sidebar");
@@ -162,21 +217,48 @@ function toggleSidebar() {
   document.querySelector(".main-content").style.marginLeft = sidebar.classList.contains("collapsed") ? "60px" : "220px";
 }
 
-const tablaHistorial = document.getElementById('tablaHistorial');
+// ==================== FUNCIONES ====================
 
-document.addEventListener('DOMContentLoaded', cargarHistorial);
+function parseFechaPersonalizada(fechaStr) {
+  const partes = fechaStr.split(",")[0].split("-");
+  if (partes.length !== 3) return new Date("Invalid Date");
+  const [dia, mes, anio] = partes;
+  return new Date(`${anio}-${mes}-${dia}`);
+}
 
 function cargarHistorial() {
-  tablaHistorial.innerHTML = "";
   const historial = JSON.parse(localStorage.getItem('historial')) || [];
+  const tablaHistorial = document.getElementById('tablaHistorial');
+  tablaHistorial.innerHTML = "";
 
-  if (historial.length === 0) {
-    tablaHistorial.innerHTML = `<tr><td colspan="8">Sin movimientos registrados.</td></tr>`;
+  const filtroInventario = document.getElementById("filtroInventario").value;
+  const filtroTipo = document.getElementById("filtroTipo").value;
+  const filtroUsuario = document.getElementById("filtroUsuario").value;
+  const fechaDesde = document.getElementById("fechaDesde").value;
+  const fechaHasta = document.getElementById("fechaHasta").value;
+
+  const desde = fechaDesde ? new Date(fechaDesde) : null;
+  const hasta = fechaHasta ? new Date(fechaHasta + "T23:59:59") : null;
+
+  const filtrado = historial.filter(item => {
+    const coincideInventario = !filtroInventario || item.inventario === filtroInventario;
+    const coincideTipo = !filtroTipo || item.tipo === filtroTipo;
+    const coincideUsuario = !filtroUsuario || item.usuario === filtroUsuario;
+
+    const fechaItem = parseFechaPersonalizada(item.fecha);
+    const coincideDesde = !desde || fechaItem >= desde;
+    const coincideHasta = !hasta || fechaItem <= hasta;
+
+    return coincideInventario && coincideTipo && coincideUsuario && coincideDesde && coincideHasta;
+  });
+
+  if (filtrado.length === 0) {
+    tablaHistorial.innerHTML = `<tr><td colspan="8">Sin movimientos filtrados.</td></tr>`;
     return;
   }
 
-  historial.forEach(item => {
-    const badgeColor = item.tipo === 'Entrada' ? 'success' : item.tipo === 'Salida' ? 'danger' : 'warning text-dark';
+  filtrado.forEach(item => {
+    const badgeColor = item.tipo === 'Entrada' ? 'success' : 'danger';
     const fila = `<tr>
       <td>${item.id}</td>
       <td><span class="badge bg-${badgeColor}">${item.tipo}</span></td>
@@ -191,15 +273,40 @@ function cargarHistorial() {
   });
 }
 
-/*
-function limpiarHistorial() {
-  if (confirm("¿Estás seguro de borrar todo el historial?")) {
-    localStorage.removeItem('historial');
-    cargarHistorial();
-  }
+
+function cargarUsuariosDesdeStorage() {
+  const usuarios = obtenerUsuarios(); // de storageService.js
+  const select = document.getElementById("filtroUsuario");
+  select.innerHTML = '<option value="">Todos</option>';
+  usuarios.forEach(u => {
+    const nombreCompleto = `${u.nombre} ${u.apellidoPaterno} ${u.apellidoMaterno}`;
+    const option = document.createElement("option");
+    option.value = u.usuario;
+    option.textContent = nombreCompleto;
+    select.appendChild(option);
+  });
 }
-*/
+
+function limpiarFiltros() {
+  document.getElementById("filtroInventario").value = "";
+  document.getElementById("filtroTipo").value = "";
+  document.getElementById("filtroUsuario").value = "";
+  document.getElementById("fechaDesde").value = "";
+  document.getElementById("fechaHasta").value = "";
+  cargarHistorial();
+}
+
+function limpiarTabla() {
+  document.getElementById("tablaHistorial").innerHTML = `<tr><td colspan="8">Historial ocultado temporalmente.</td></tr>`;
+}
+
+// ==================== INICIO ====================
+document.addEventListener('DOMContentLoaded', () => {
+  cargarUsuariosDesdeStorage();
+  cargarHistorial();
+});
 </script>
+
 
 <script>
   const usuario = JSON.parse(localStorage.getItem("usuarioActivo"));
@@ -234,7 +341,8 @@ function limpiarHistorial() {
       elemento.style.display = "none";
     }
   });
-</script>
 
+  
+</script>
 </body>
 </html>
